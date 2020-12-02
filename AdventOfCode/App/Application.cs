@@ -14,18 +14,16 @@ namespace AdventOfCode.App
     {
         public readonly AdventOfCode2020 _advent2020Service;
         public readonly AdventOfCode2019 _advent2019Service;
-        public readonly AdventOfCode2018 _advent2018Service;
 
         private List<KeyValuePair<string, MethodInfo>> _settingMethods;
         private List<MethodInfo> _adventMethods;
         private string _inputPath;
         private int _year;
 
-        public Application(AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, AdventOfCode2018 advent2018Service, IOptions<Settings> settings)
+        public Application(AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, IOptions<Settings> settings)
         {
             _advent2020Service = advent2020Service;
             _advent2019Service = advent2019Service;
-            _advent2018Service = advent2018Service;
             _settingMethods = new List<KeyValuePair<string, MethodInfo>>();
             _adventMethods = new List<MethodInfo>();
             _inputPath = settings.Value.InputPath;

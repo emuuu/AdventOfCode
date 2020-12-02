@@ -27,7 +27,6 @@ namespace AdventOfCode
             services.Configure<Settings>(Configuration.GetSection("Settings"));
 
 
-            services.AddScoped<AdventOfCode2018>();
             services.AddScoped<AdventOfCode2019>();
             services.AddScoped<AdventOfCode2020>();
 
