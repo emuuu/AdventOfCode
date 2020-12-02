@@ -69,11 +69,11 @@ namespace AdventOfCode.Services
 
         public int CalculateExpenses(int[] report, bool threeNumbers)
         {
-            for(var i = 0; i < report.Length; i++)
+            for (var i = 0; i < report.Length; i++)
             {
-                for(var j = 0; j < report.Length; j++)
+                for (var j = 0; j < report.Length; j++)
                 {
-                    if(j == i)
+                    if (j == i)
                     {
                         continue;
                     }
@@ -102,6 +102,45 @@ namespace AdventOfCode.Services
             }
             return 0;
         }
+        #endregion
+
+        #region Day2
+        public string[] ConvertDay2Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath);
+        }
+
+        public int Day2_PuzzleOne(IEnumerable<string> input)
+        {
+            return input.Count(x => ValidPasswordPolicy(x.Split(':')[0], x.Split(':')[1].Trim(), false));
+        }
+
+        public int Day2_PuzzleTwo(IEnumerable<string> input)
+        {
+            return input.Count(x => ValidPasswordPolicy(x.Split(':')[0], x.Split(':')[1].Trim(), true));
+        }
+
+        public bool ValidPasswordPolicy(string policy, string password, bool tobogganPolicy)
+        {
+            var policySplit = policy.Split(' ');
+
+            if (!int.TryParse(policySplit[0].Split('-')[0], out int min) || !int.TryParse(policySplit[0].Split('-')[1], out int max))
+                throw new Exception("Could not parse password policy.");
+
+            var validationChar = policySplit[1][0];
+            if (!tobogganPolicy)
+            {
+                var charCount = password.Count(x => x == validationChar);
+                return charCount >= min && charCount <= max;
+            }
+            else
+            {
+                min--;
+                max--;
+                return (password[min] == validationChar || password[max] == validationChar) && !(password[min] == validationChar && password[max] == validationChar);
+            }
+        }
+       
         #endregion
     }
 }

@@ -32,5 +32,24 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 2
+        [Test]
+        [TestCase("1-3 a: abcde", true)]
+        [TestCase("1-3 b: cdefg", false)]
+        [TestCase("2-9 c: ccccccccc", true)]
+        public void Day2_ValidSledRentalPasswordPolicy(string input, bool result)
+        {
+            Assert.AreEqual(result, _service.ValidPasswordPolicy(input.Split(':')[0], input.Split(':')[1].Trim(), false));
+        }
+        [Test]
+        [TestCase("1-3 a: abcde", true)]
+        [TestCase("1-3 b: cdefg", false)]
+        [TestCase("2-9 c: ccccccccc", false)]
+        public void Day2_ValidTobogganPasswordPolicy(string input, bool result)
+        {
+            Assert.AreEqual(result, _service.ValidPasswordPolicy(input.Split(':')[0], input.Split(':')[1].Trim(), true));
+        }
+        #endregion
+
     }
 }
