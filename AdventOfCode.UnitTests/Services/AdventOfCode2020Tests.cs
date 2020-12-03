@@ -2,6 +2,7 @@ using NUnit.Framework;
 using AdventOfCode.Services;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace AdventOfCode.Services.UnitTests
 {
@@ -48,6 +49,18 @@ namespace AdventOfCode.Services.UnitTests
         public void Day2_ValidTobogganPasswordPolicy(string input, bool result)
         {
             Assert.AreEqual(result, _service.ValidPasswordPolicy(input.Split(':')[0], input.Split(':')[1].Trim(), true));
+        }
+        #endregion
+
+        #region Day 3
+        [Test]
+        [TestCase(7)]
+        public void Day3_RunMap(int result)
+        {
+            var testMapInput = new string[] { "..##.......", "#...#...#..", ".#....#..#.", "..#.#...#.#", ".#...##..#.", "..#.##.....", ".#.#.#....#", ".#........#", "#.##...#...", "#...##....#", ".#..#...#.#" };
+            var testMap = testMapInput.Select(x => x.ToCharArray()).ToArray();
+
+            Assert.AreEqual(result, _service.RunMap(testMap, 3, 1));
         }
         #endregion
 

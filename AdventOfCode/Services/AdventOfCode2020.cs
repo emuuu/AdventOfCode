@@ -140,7 +140,52 @@ namespace AdventOfCode.Services
                 return (password[min] == validationChar || password[max] == validationChar) && !(password[min] == validationChar && password[max] == validationChar);
             }
         }
-       
+
+        #endregion
+
+        #region Day3
+        public char[][] ConvertDay3Input(string inputPath)
+        {          
+            return File.ReadAllLines(inputPath).Select(x => x.ToCharArray()).ToArray();
+        }
+
+        public int Day3_PuzzleOne(char[][] input)
+        {
+            return RunMap(input, 3, 1);
+        }
+
+        public long Day3_PuzzleTwo(char[][] input)
+        {
+            var slopeVectors = new List<int[]> { new int[] { 1, 1 }, new int[] { 3, 1 }, new int[] { 5, 1 }, new int[] { 7, 1 }, new int[] { 1, 2 } };
+            var results = slopeVectors.Select(x => (long)RunMap(input, x[0], x[1]));
+            return results.Aggregate((long)1, (x, y) => x * y);
+        }
+
+
+        public int RunMap(char[][] map, int vectorX, int vectorY)
+        {
+            var i = 0;
+            var j = 0;
+            var treeCount = 0;
+            while(i < map.Length)
+            {
+                if(map[i][j] == '#')
+                {
+                    treeCount++;
+                }
+                if (j + vectorX >= map[i].Length)
+                {
+                    j = vectorX - (map[i].Length - j);
+                }
+                else
+                {
+                    j += vectorX;
+                }
+                i+= vectorY;
+            }
+
+            return treeCount;
+        }
         #endregion
     }
 }
