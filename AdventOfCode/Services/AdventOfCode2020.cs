@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Services
 {
@@ -145,7 +146,7 @@ namespace AdventOfCode.Services
 
         #region Day3
         public char[][] ConvertDay3Input(string inputPath)
-        {          
+        {
             return File.ReadAllLines(inputPath).Select(x => x.ToCharArray()).ToArray();
         }
 
@@ -167,9 +168,9 @@ namespace AdventOfCode.Services
             var i = 0;
             var j = 0;
             var treeCount = 0;
-            while(i < map.Length)
+            while (i < map.Length)
             {
-                if(map[i][j] == '#')
+                if (map[i][j] == '#')
                 {
                     treeCount++;
                 }
@@ -181,10 +182,122 @@ namespace AdventOfCode.Services
                 {
                     j += vectorX;
                 }
-                i+= vectorY;
+                i += vectorY;
             }
 
             return treeCount;
+        }
+        #endregion
+
+        #region Day4
+        public List<List<KeyValuePair<string, string>>> ConvertDay4Input(string inputPath)
+        {
+            var input = new List<List<KeyValuePair<string, string>>>();
+            var currentPassport = new List<KeyValuePair<string, string>>();
+            foreach (var line in File.ReadAllLines(inputPath))
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    input.Add(currentPassport);
+                    currentPassport = new List<KeyValuePair<string, string>>();
+                }
+                else
+                {
+                    currentPassport.AddRange(line.Split(' ').Select(x => new KeyValuePair<string, string>(x.Split(':')[0], x.Split(':')[1])));
+                }
+            }
+            input.Add(currentPassport);
+            return input;
+        }
+
+        public int Day4_PuzzleOne(List<List<KeyValuePair<string, string>>> input)
+        {
+            return input.Count(x => ValidPassport(x, false));
+        }
+
+        public long Day4_PuzzleTwo(List<List<KeyValuePair<string, string>>> input)
+        {
+            return input.Count(x => ValidPassport(x, true));
+        }
+
+        public static List<KeyValuePair<string, bool>> PassportFields = new List<KeyValuePair<string, bool>>() {
+            new KeyValuePair<string, bool>("byr", true),
+            new KeyValuePair<string, bool>("iyr", true),
+            new KeyValuePair<string, bool>("eyr", true),
+            new KeyValuePair<string, bool>("hgt", true),
+            new KeyValuePair<string, bool>("hcl", true),
+            new KeyValuePair<string, bool>("ecl", true),
+            new KeyValuePair<string, bool>("pid", true),
+            new KeyValuePair<string, bool>("cid", false),
+        };
+
+        public bool ValidPassport(IEnumerable<KeyValuePair<string, string>> passport, bool validateValue)
+        {
+            if (validateValue && passport.Any(x => !ValidatePassportValue(x)))
+                return false;
+
+            return !PassportFields.Any(x => !(!x.Value || passport.Any(y => y.Key == x.Key)));
+        }
+
+        public bool ValidatePassportValue(KeyValuePair<string, string> passportField)
+        {
+            switch (passportField.Key)
+            {
+                case "byr":
+                    {
+                        if (!int.TryParse(passportField.Value, out int birthYear))
+                            return false;
+                        return birthYear >= 1920 && birthYear <= 2002;
+                    }
+                case "iyr":
+                    {
+                        if (!int.TryParse(passportField.Value, out int issueYear))
+                            return false;
+                        return issueYear >= 2010 && issueYear <= 2020;
+                    }
+                case "eyr":
+                    {
+                        if (!int.TryParse(passportField.Value, out int expirationYear))
+                            return false;
+                        return expirationYear >= 2020 && expirationYear <= 2030;
+                    }
+                case "hgt":
+                    {
+                        if (!int.TryParse(new string(passportField.Value.Where(c => char.IsDigit(c)).ToArray()), out int height))
+                            return false;
+                        if (passportField.Value.EndsWith("cm"))
+                            return height >= 150 && height <= 193;
+                        else if (passportField.Value.EndsWith("in"))
+                            return height >= 59 && height <= 76;
+                        else
+                            return false;
+                    }
+                case "hcl":
+                    {
+                        if (!passportField.Value.StartsWith('#'))
+                            return false;
+                       var  hairColor = passportField.Value.Replace("#", string.Empty);
+                        if (hairColor.Length != 6)
+                            return false;
+                        return !hairColor.Any(x => !((x >= 'a' && x <= 'f') || (x >= '0' && x <= '9')));
+                    }
+                case "ecl":
+                    {
+                        return passportField.Value == "amb" || passportField.Value == "blu" || passportField.Value == "brn" || passportField.Value == "gry" || passportField.Value == "grn" || passportField.Value == "hzl" || passportField.Value == "oth";
+                    }
+                case "pid":
+                    {
+                        return passportField.Value.Length == 9 && int.TryParse(passportField.Value, out int pid);
+                    }
+                case "cid":
+                    {
+                        return true;
+                    }
+                default:
+                    {
+                        return false;
+                    }
+            }
         }
         #endregion
     }
