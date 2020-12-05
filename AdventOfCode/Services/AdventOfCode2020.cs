@@ -276,7 +276,7 @@ namespace AdventOfCode.Services
                     {
                         if (!passportField.Value.StartsWith('#'))
                             return false;
-                       var  hairColor = passportField.Value.Replace("#", string.Empty);
+                        var hairColor = passportField.Value.Replace("#", string.Empty);
                         if (hairColor.Length != 6)
                             return false;
                         return !hairColor.Any(x => !((x >= 'a' && x <= 'f') || (x >= '0' && x <= '9')));
@@ -299,6 +299,59 @@ namespace AdventOfCode.Services
                     }
             }
         }
+        #endregion
+
+        #region Day5
+        public IEnumerable<string> ConvertDay5Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath);
+        }
+
+        public int Day5_PuzzleOne(IEnumerable<string> input)
+        {
+            var seatIDs = input.Select(x => CalculateSeatID(x));
+            return seatIDs.Max();
+        }
+
+        public int Day5_PuzzleTwo(IEnumerable<string> input)
+        {
+            var seatIDs = input.Select(x => CalculateSeatID(x)).OrderBy(x => x).ToList();
+            for (var i = 0; i < seatIDs.Count - 1; i++)
+            {
+                if (seatIDs[i] + 2 == seatIDs[i + 1])
+                    return seatIDs[i] + 1;
+            }
+
+            return default;
+        }
+
+        public int CalculateSeatID(string input)
+        {
+            var row = new int[] { 0, 127 };
+            var column = new int[] { 0, 7 };
+            foreach (var rowCode in input.Substring(0, 7))
+            {
+                SolveSeatStep(row, rowCode);
+            }
+            foreach (var colCode in input.Substring(7, 3))
+            {
+                SolveSeatStep(column, colCode);
+            }
+
+            return row[0] * 8 + column[0];
+        }
+
+        public int[] SolveSeatStep(int[] range, char input)
+        {
+            var rangeStep = (range[1] - range[0] + 1) / 2;
+
+            if (input == 'F' || input == 'L')
+                range[1] -= rangeStep;
+            else
+                range[0] += rangeStep;
+            return range;
+        }
+
         #endregion
     }
 }

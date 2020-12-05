@@ -114,5 +114,44 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 5
+        [Test]
+        [TestCase('F', new int[] { 0, 127 }, new int[] { 0, 63 })]
+        [TestCase('B', new int[] { 0, 63 }, new int[] { 32, 63 })]
+        [TestCase('F', new int[] { 32, 63 }, new int[] { 32, 47 })]
+        [TestCase('B', new int[] { 32, 47 }, new int[] { 40, 47 })]
+        [TestCase('B', new int[] { 40, 47 }, new int[] { 44, 47 })]
+        [TestCase('F', new int[] { 44, 47 }, new int[] { 44, 45 })]
+        [TestCase('R', new int[] { 0, 7 }, new int[] { 4, 7 })]
+        [TestCase('L', new int[] { 4, 7 }, new int[] { 4, 5 })]
+        public void Day5_RangeStep(char input, int[] range, int[] result)
+        {
+            Assert.AreEqual(result, _service.SolveSeatStep(range, input));
+        }
+
+        [Test]
+        [TestCase("FBFBBFF", new int[] { 0, 127 }, 44)]
+        [TestCase("RLR", new int[] { 0, 7 }, 5)]
+        public void Day5_SeatCalculation(string seatCode, int[] range, int result)
+        {
+            foreach (var c in seatCode)
+            {
+                _service.SolveSeatStep(range, c);
+            }
+            Assert.AreEqual(result, range[0]);
+
+        }
+
+        [Test]
+        [TestCase("FBFBBFFRLR", 357)]
+        [TestCase("BFFFBBFRRR", 567)]
+        [TestCase("FFFBBBFRRR", 119)]
+        [TestCase("BBFFBBFRLL", 820)]
+        public void Day5_SeatIDCalculation(string seatCode, int result)
+        {
+            Assert.AreEqual(result, _service.CalculateSeatID(seatCode));
+        }
+        #endregion
+
     }
 }
