@@ -353,5 +353,32 @@ namespace AdventOfCode.Services
         }
 
         #endregion
+
+        #region Day6
+        public string ConvertDay6Input(string inputPath)
+        {
+            return File.ReadAllText(inputPath);
+        }
+
+        public int Day6_PuzzleOne(string input)
+        {
+            return input.Split(new string[] { "\r\n\r\n" }, StringSplitOptions.None).Select(x => CountAnswers(x, true)).Sum();
+        }
+
+        public int Day6_PuzzleTwo(string input)
+        {
+            return input.Split(new string[] { "\r\n\r\n" }, StringSplitOptions.None).Select(x => CountAnswers(x, false)).Sum();
+        }
+
+        public int CountAnswers(string answerSheet, bool testOne)
+        {
+            var charSet = answerSheet.Replace("\r\n", string.Empty).Select(x => x).Distinct();
+
+            if (testOne)
+                return charSet.Count();
+            else
+                return charSet.Where(x => !answerSheet.Split(new string[] { "\r\n" }, StringSplitOptions.None).Any(y => !y.Contains(x))).Count();
+        }
+        #endregion
     }
 }

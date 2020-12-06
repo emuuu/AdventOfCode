@@ -153,5 +153,32 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 6
+        [Test]
+        [TestCase("abcx\r\nabcy\r\nabcz", 6)]
+        [TestCase("abc", 3)]
+        [TestCase("a\r\nb\r\nc", 3)]
+        [TestCase("ab\r\nac", 2)]
+        [TestCase("a\r\na\r\na\r\na", 1)]
+        [TestCase("b", 1)]
+
+        public void Day6_CountAnswersTestOne(string input, int result)
+        {
+            Assert.AreEqual(result, _service.CountAnswers(input, true));
+        }
+
+        [Test]
+        [TestCase("abc", 3)]
+        [TestCase("a\r\nb\r\nc", 0)]
+        [TestCase("ab\r\nac", 1)]
+        [TestCase("a\r\na\r\na\r\na", 1)]
+        [TestCase("b", 1)]
+
+        public void Day6_CountAnswersTestTwo(string input, int result)
+        {
+            Assert.AreEqual(result, _service.CountAnswers(input, false));
+        }
+        #endregion
+
     }
 }
