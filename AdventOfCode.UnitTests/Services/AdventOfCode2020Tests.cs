@@ -158,7 +158,7 @@ namespace AdventOfCode.Services.UnitTests
         [TestCase("abcx\r\nabcy\r\nabcz", 6)]
         [TestCase("abc", 3)]
         [TestCase("a\r\nb\r\nc", 3)]
-        [TestCase("ab\r\nac", 2)]
+        [TestCase("ab\r\nac", 3)]
         [TestCase("a\r\na\r\na\r\na", 1)]
         [TestCase("b", 1)]
 
