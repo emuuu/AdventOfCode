@@ -380,5 +380,50 @@ namespace AdventOfCode.Services
                 return charSet.Where(x => !answerSheet.Split(new string[] { "\r\n" }, StringSplitOptions.None).Any(y => !y.Contains(x))).Count();
         }
         #endregion
+
+        #region Day7
+        public Dictionary<string, Dictionary<string, int>> ConvertDay7Input(string inputPath)
+        {
+            return CreateRules(File.ReadAllLines(inputPath));
+        }
+
+        public int Day7_PuzzleOne(Dictionary<string, Dictionary<string, int>> input)
+        {
+            return RunBagRules(new List<string> { "shiny gold" }, input, true).Count - 1;
+        }
+
+        public int Day7_PuzzleTwo(Dictionary<string, Dictionary<string, int>> input)
+        {
+            return RunBagRules(new List<string> { "shiny gold" }, input, false).Count - 1;
+        }
+
+        public Dictionary<string, Dictionary<string, int>> CreateRules(IEnumerable<string> ruleSet)
+        {
+            return ruleSet.ToDictionary(
+                x => x.Split(new string[] { "bags contain" }, StringSplitOptions.None)[0].Trim(),
+                x => x.Split(new string[] { "bags contain" }, StringSplitOptions.None)[1].Split(',').Where(y => !y.Contains("no other")).ToDictionary(
+                    y => y.Trim().Split(' ')[1] + " " + y.Trim().Split(' ')[2].Trim(),
+                    y => int.Parse(y.Trim().Split(' ')[0])));
+        }
+
+        public List<string> RunBagRules(List<string> searchedBags, Dictionary<string, Dictionary<string, int>> rules, bool runUp)
+        {
+            var addedBags = new List<string>();
+            foreach (var searchedBag in searchedBags)
+            {
+                if (runUp)
+                    addedBags.AddRange(RunBagRules(rules.Where(x => x.Value.ContainsKey(searchedBag)).Select(x => x.Key).ToList(), rules, runUp));
+                else
+                    addedBags.AddRange(RunBagRules(rules.Where(x => x.Key == searchedBag).SelectMany(x => x.Value.SelectMany(y => Enumerable.Repeat(y.Key, y.Value))).ToList(), rules, runUp));
+            }
+            if (runUp)
+                return searchedBags.Union(addedBags).ToList();
+            else
+            {
+                searchedBags.AddRange(addedBags);
+                return searchedBags;
+            }
+        }
+        #endregion
     }
 }

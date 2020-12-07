@@ -180,5 +180,60 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 7
+        public static IEnumerable<TestCaseData> RunBagUp_TestData()
+        {
+            yield return new TestCaseData(
+                "shiny gold",
+                new List<string>
+                {
+                    "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+                    "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+                    "bright white bags contain 1 shiny gold bag.",
+                    "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+                    "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+                    "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+                    "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+                    "faded blue bags contain no other bags.",
+                    "dotted black bags contain no other bags."
+                },
+                4);
+        }
+        public static IEnumerable<TestCaseData> RunBagDown_TestData()
+        {
+            yield return new TestCaseData(
+                "shiny gold",
+                new List<string>
+                {
+                    "light red bags contain 1 bright white bag, 2 muted yellow bags.",
+                    "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
+                    "bright white bags contain 1 shiny gold bag.",
+                    "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.",
+                    "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.",
+                    "dark olive bags contain 3 faded blue bags, 4 dotted black bags.",
+                    "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.",
+                    "faded blue bags contain no other bags.",
+                    "dotted black bags contain no other bags."
+                },
+                32);
+        }
+
+        [Test]
+        [TestCaseSource("RunBagUp_TestData")]
+        public void Day7_RunBagRulesUp(string searchedBag, List<string> ruleInput, int result)
+        {
+            var rules = _service.CreateRules(ruleInput);
+            Assert.AreEqual(result, _service.RunBagRules(new List<string> { searchedBag }, rules, true).Count - 1);
+        }
+
+        [Test]
+        [TestCaseSource("RunBagDown_TestData")]
+        public void Day7_RunBagRulesDown(string searchedBag, List<string> ruleInput, int result)
+        {
+            var rules = _service.CreateRules(ruleInput);
+            Assert.AreEqual(result, _service.RunBagRules(new List<string> { searchedBag }, rules, false).Count - 1);
+        }
+        #endregion
+
     }
 }
