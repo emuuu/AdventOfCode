@@ -425,5 +425,70 @@ namespace AdventOfCode.Services
             }
         }
         #endregion
+
+        #region Day8
+        public List<Tuple<string, int>> ConvertDay8Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => new Tuple<string, int>(x.Split(' ')[0], int.Parse(x.Split(' ')[1]))).ToList();
+        }
+
+        public int Day8_PuzzleOne(List<Tuple<string, int>> input)
+        {
+            RunBootProgram(input, out int accumulatorValue);
+            return accumulatorValue;
+        }
+
+        public int Day8_PuzzleTwo(List<Tuple<string, int>> input)
+        {
+            return TryFixBootProgram(input);
+        }
+
+
+        public bool RunBootProgram(List<Tuple<string, int>> instructions, out int accumulatorValue)
+        {
+            accumulatorValue = 0;
+            var pastCommands = new List<int>();
+
+            for (var i = 0; i < instructions.Count; i++)
+            {
+                if (pastCommands.Contains(i))
+                    return false;
+
+                pastCommands.Add(i);
+                switch (instructions[i].Item1)
+                {
+                    case "acc":
+                        {
+                            accumulatorValue += instructions[i].Item2;
+                            break;
+                        }
+                    case "jmp":
+                        {
+                            i += instructions[i].Item2 - 1;
+                            break;
+                        }
+                    case "nop":
+                        {
+                            break;
+                        }
+                }
+            }
+            return true;
+        }
+
+        public int TryFixBootProgram(List<Tuple<string, int>> instructions)
+        {
+            var changableIndices = instructions.Select((instruction, index) => new { Instruction = instruction, Index = index }).Where(o => o.Instruction.Item1 == "jmp" || o.Instruction.Item1 == "nop").Select(o => o.Index).ToList();
+            foreach(var changeIndex in changableIndices)
+            {
+                var updatedInstructions = instructions.Select(x => x).ToList();
+                updatedInstructions[changeIndex] = new Tuple<string, int>(instructions[changeIndex].Item1 == "jmp" ? "nop" : "jmp", instructions[changeIndex].Item2);
+                if (RunBootProgram(updatedInstructions, out int accumulatorValue))
+                    return accumulatorValue;
+            }
+
+            return default;
+        }
+        #endregion
     }
 }

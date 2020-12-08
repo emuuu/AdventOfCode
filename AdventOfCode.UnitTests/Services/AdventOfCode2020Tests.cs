@@ -235,5 +235,26 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 8
+        [Test]
+        [TestCase("nop +0,acc +1,jmp +4,acc +3,jmp -3,acc -99,acc +1,jmp -4,acc +6", false, 5)]
+
+        public void Day8_RunBootProgram(string input, bool terminationResult, int result)
+        {
+            var convertedInput = input.Split(',').Select(x => new Tuple<string, int>(x.Split(' ')[0], int.Parse(x.Split(' ')[1]))).ToList();
+            var terminated = _service.RunBootProgram(convertedInput, out int accumulatorValue);
+            Assert.AreEqual(result, accumulatorValue);
+            Assert.AreEqual(terminationResult, terminated);
+        }
+        [Test]
+        [TestCase("nop +0,acc +1,jmp +4,acc +3,jmp -3,acc -99,acc +1,jmp -4,acc +6", 8)]
+
+        public void Day8_TryFixBootProgram(string input, int result)
+        {
+            var convertedInput = input.Split(',').Select(x => new Tuple<string, int>(x.Split(' ')[0], int.Parse(x.Split(' ')[1]))).ToList();
+            Assert.AreEqual(result, _service.TryFixBootProgram(convertedInput));
+        }
+        #endregion
+
     }
 }
