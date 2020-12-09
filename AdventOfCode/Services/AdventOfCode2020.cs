@@ -479,7 +479,7 @@ namespace AdventOfCode.Services
         public int TryFixBootProgram(List<Tuple<string, int>> instructions)
         {
             var changableIndices = instructions.Select((instruction, index) => new { Instruction = instruction, Index = index }).Where(o => o.Instruction.Item1 == "jmp" || o.Instruction.Item1 == "nop").Select(o => o.Index).ToList();
-            foreach(var changeIndex in changableIndices)
+            foreach (var changeIndex in changableIndices)
             {
                 var updatedInstructions = instructions.Select(x => x).ToList();
                 updatedInstructions[changeIndex] = new Tuple<string, int>(instructions[changeIndex].Item1 == "jmp" ? "nop" : "jmp", instructions[changeIndex].Item2);
@@ -487,6 +487,52 @@ namespace AdventOfCode.Services
                     return accumulatorValue;
             }
 
+            return default;
+        }
+        #endregion
+
+        #region Day9
+        public IEnumerable<long> ConvertDay9Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => long.Parse(x));
+        }
+
+        public long Day9_PuzzleOne(IEnumerable<long> input)
+        {
+            return FindInvalidNumber(input, 25);
+        }
+
+        public long Day9_PuzzleTwo(IEnumerable<long> input)
+        {
+            var contiguouSet = FindContiguousSet(Day9_PuzzleOne(input), input.ToList());
+
+            return contiguouSet.Min() + contiguouSet.Max();
+        }
+
+        public long FindInvalidNumber(IEnumerable<long> inputStream, int preambleLength)
+        {
+            return inputStream.Select((input, index) => new { Input = input, Index = index }).Skip(preambleLength).FirstOrDefault(x => !ValidStream(x.Input, inputStream.Skip(x.Index - preambleLength).Take(preambleLength))).Input;
+        }
+
+        public bool ValidStream(long validationNumber, IEnumerable<long> numberStream)
+        {
+            return numberStream.Any(x => numberStream.Any(y => y != x && x + y == validationNumber));
+        }
+
+        public IEnumerable<long> FindContiguousSet(long validationNumber, List<long> numberStream)
+        {
+            for (var i = 0; i < numberStream.Count; i++)
+            {
+                for (var j = 0; j < i; j++)
+                {
+                    if (j == i)
+                        continue;
+                    if (numberStream.Skip(j).Take(i - j).Sum() == validationNumber)
+                    {
+                        return numberStream.Skip(j).Take(i - j);
+                    }
+                }
+            }
             return default;
         }
         #endregion

@@ -256,5 +256,43 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 9
+        [Test]
+        [TestCase(new long[] { 35, 20, 15, 25, 47 }, 40, true)]
+        [TestCase(new long[] { 20, 15, 25, 47, 40 }, 62, true)]
+        [TestCase(new long[] { 15, 25, 47, 40, 62 }, 55, true)]
+        [TestCase(new long[] { 25, 47, 40, 62, 55 }, 65, true)]
+        [TestCase(new long[] { 47, 40, 62, 55, 65 }, 95, true)]
+        [TestCase(new long[] { 40, 62, 55, 65, 95 }, 102, true)]
+        [TestCase(new long[] { 62, 55, 65, 95, 102 }, 117, true)]
+        [TestCase(new long[] { 55, 65, 95, 102, 117 }, 150, true)]
+        [TestCase(new long[] { 65, 95, 102, 117, 150 }, 182, true)]
+        [TestCase(new long[] { 95, 102, 117, 150, 182 }, 127, false)]
+        [TestCase(new long[] { 102, 117, 150, 182, 127 }, 219, true)]
+        [TestCase(new long[] { 117, 150, 182, 127, 219 }, 299, true)]
+        [TestCase(new long[] { 150, 182, 127, 219, 299 }, 277, true)]
+        [TestCase(new long[] { 182, 127, 219, 299, 277 }, 309, true)]
+        [TestCase(new long[] { 127, 219, 299, 277, 309 }, 576, true)]
+        public void Day9_ValidStream(long[] numberStream, long validationNumber, bool result)
+        {
+            Assert.AreEqual(result, _service.ValidStream(validationNumber, numberStream));
+        }
+
+        [Test]
+        [TestCase(new long[] { 35, 20, 15, 25, 47, 40, 62, 55, 65, 95, 102, 117, 150, 182, 127, 219, 299, 277, 309, 576 }, 127)]
+        public void Day9_FindInvalidNumber(long[] numberStream, long result)
+        {
+            Assert.AreEqual(result, _service.FindInvalidNumber(numberStream, 5));
+        }
+
+        [Test]
+        [TestCase(new long[] { 35, 20, 15, 25, 47, 40, 62, 55, 65, 95, 102, 117, 150, 182, 127, 219, 299, 277, 309, 576 }, 62)]
+        public void Day9_FindContiguousSet(long[] numberStream, long result)
+        {
+            var contiguouSet = _service.FindContiguousSet(_service.FindInvalidNumber(numberStream, 5), numberStream.ToList());
+            Assert.AreEqual(result, contiguouSet.Min() + contiguouSet.Max());
+        }
+        #endregion
+
     }
 }
