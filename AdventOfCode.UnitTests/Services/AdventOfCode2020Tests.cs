@@ -294,5 +294,23 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 10
+        [Test]
+        [TestCase(new int[] { 16, 10, 15, 5, 1, 11, 7, 19, 6, 12, 4 }, 7, 5)]
+        [TestCase(new int[] { 28, 33, 18, 42, 31, 14, 46, 20, 48, 47, 24, 23, 49, 45, 19, 38, 39, 11, 1, 32, 25, 35, 8, 17, 7, 9, 4, 2, 34, 10, 3 }, 22, 10)]
+        public void Day10_SetupAdaptersWithAllAdapters(int[] adpaterRatings, int oneJoltDifferences, int threeJoltDifferences)
+        {
+            Assert.AreEqual(oneJoltDifferences * threeJoltDifferences, _service.SetupAdapters(adpaterRatings.ToList(), true));
+        }
+
+        [Test]
+        [TestCase(new int[] { 16, 10, 15, 5, 1, 11, 7, 19, 6, 12, 4 }, 8)]
+        [TestCase(new int[] { 28, 33, 18, 42, 31, 14, 46, 20, 48, 47, 24, 23, 49, 45, 19, 38, 39, 11, 1, 32, 25, 35, 8, 17, 7, 9, 4, 2, 34, 10, 3 }, 19208)]
+        public void SetupAdaptersWithDistincConfiguration(int[] adpaterRatings, int result)
+        {
+            Assert.AreEqual(result, _service.SetupAdapters(adpaterRatings.ToList(), false));
+        }
+        #endregion
+
     }
 }

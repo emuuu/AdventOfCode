@@ -536,5 +536,49 @@ namespace AdventOfCode.Services
             return default;
         }
         #endregion
+
+        #region Day10
+        public List<int> ConvertDay10Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => int.Parse(x)).ToList();
+        }
+
+        public long Day10_PuzzleOne(List<int> input)
+        {
+            return SetupAdapters(input, true);
+        }
+
+        public long Day10_PuzzleTwo(List<int> input)
+        {
+            return SetupAdapters(input, false);
+        }
+
+        public long SetupAdapters(List<int> adapterRatings, bool useAll)
+        {
+            adapterRatings.Add(0);
+            adapterRatings.Add(adapterRatings.Max() + 3);
+            var sortedAdapters = adapterRatings.OrderBy(x => x).Select((rating, index) => new { Rating = rating, Index = index }).ToList();
+
+            if (useAll)
+            {
+                return sortedAdapters.Skip(1).Where(x => x.Rating - sortedAdapters[x.Index - 1].Rating == 1).Count() * sortedAdapters.Skip(1).Where(x => x.Rating - sortedAdapters[x.Index - 1].Rating == 3).Count();
+            }
+            else
+            {
+                var combinations = new Dictionary<int, long>();
+                foreach (var adapter in sortedAdapters)
+                {
+                    long foundCombinations = 0;
+                    if (adapter.Rating == 0) foundCombinations++;
+                    for (var n = 1; n <= 3; n++)
+                    {
+                        if (combinations.ContainsKey(adapter.Rating - n)) foundCombinations += combinations[adapter.Rating - n];
+                    }
+                    combinations.Add(adapter.Rating, foundCombinations);
+                }
+                return combinations[sortedAdapters.Last().Rating];
+            }
+        }
+        #endregion
     }
 }
