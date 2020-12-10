@@ -52,7 +52,7 @@ namespace AdventOfCode.Services
             return result;
         }
 
-        #region Day1 
+        #region Day 01 
         public int[] ConvertDay1Input(string inputPath)
         {
             return File.ReadAllLines(inputPath).Select(x => int.Parse(x)).ToArray();
@@ -105,7 +105,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day2
+        #region Day 02
         public string[] ConvertDay2Input(string inputPath)
         {
             return File.ReadAllLines(inputPath);
@@ -144,7 +144,7 @@ namespace AdventOfCode.Services
 
         #endregion
 
-        #region Day3
+        #region Day 03
         public char[][] ConvertDay3Input(string inputPath)
         {
             return File.ReadAllLines(inputPath).Select(x => x.ToCharArray()).ToArray();
@@ -189,7 +189,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day4
+        #region Day 04
         public List<List<KeyValuePair<string, string>>> ConvertDay4Input(string inputPath)
         {
             var input = new List<List<KeyValuePair<string, string>>>();
@@ -301,7 +301,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day5
+        #region Day 05
         public IEnumerable<string> ConvertDay5Input(string inputPath)
         {
             return File.ReadAllLines(inputPath);
@@ -354,7 +354,7 @@ namespace AdventOfCode.Services
 
         #endregion
 
-        #region Day6
+        #region Day 06
         public string ConvertDay6Input(string inputPath)
         {
             return File.ReadAllText(inputPath);
@@ -381,7 +381,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day7
+        #region Day 07
         public Dictionary<string, Dictionary<string, int>> ConvertDay7Input(string inputPath)
         {
             return CreateRules(File.ReadAllLines(inputPath));
@@ -426,7 +426,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day8
+        #region Day 08
         public List<Tuple<string, int>> ConvertDay8Input(string inputPath)
         {
             return File.ReadAllLines(inputPath).Select(x => new Tuple<string, int>(x.Split(' ')[0], int.Parse(x.Split(' ')[1]))).ToList();
@@ -491,7 +491,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day9
+        #region Day 09
         public IEnumerable<long> ConvertDay9Input(string inputPath)
         {
             return File.ReadAllLines(inputPath).Select(x => long.Parse(x));
@@ -537,7 +537,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day10
+        #region Day 10
         public List<int> ConvertDay10Input(string inputPath)
         {
             return File.ReadAllLines(inputPath).Select(x => int.Parse(x)).ToList();
