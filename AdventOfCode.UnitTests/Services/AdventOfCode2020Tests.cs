@@ -312,5 +312,54 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 11
+        [Test]
+        [TestCase("L.LL.LL.LL,LLLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLLL,L.LLLLLL.L,L.LLLLL.LL", "#.##.##.##,#######.##,#.#.#..#..,####.##.##,#.##.##.##,#.#####.##,..#.#.....,##########,#.######.#,#.#####.##")]
+        [TestCase("#.##.##.##,#######.##,#.#.#..#..,####.##.##,#.##.##.##,#.#####.##,..#.#.....,##########,#.######.#,#.#####.##", "#.LL.L#.##,#LLLLLL.L#,L.L.L..L..,#LLL.LL.L#,#.LL.LL.LL,#.LLLL#.##,..L.L.....,#LLLLLLLL#,#.LLLLLL.L,#.#LLLL.##")]
+        [TestCase("#.LL.L#.##,#LLLLLL.L#,L.L.L..L..,#LLL.LL.L#,#.LL.LL.LL,#.LLLL#.##,..L.L.....,#LLLLLLLL#,#.LLLLLL.L,#.#LLLL.##", "#.##.L#.##,#L###LL.L#,L.#.#..#..,#L##.##.L#,#.##.LL.LL,#.###L#.##,..#.#.....,#L######L#,#.LL###L.L,#.#L###.##")]
+        [TestCase("#.##.L#.##,#L###LL.L#,L.#.#..#..,#L##.##.L#,#.##.LL.LL,#.###L#.##,..#.#.....,#L######L#,#.LL###L.L,#.#L###.##", "#.#L.L#.##,#LLL#LL.L#,L.L.L..#..,#LLL.##.L#,#.LL.LL.LL,#.LL#L#.##,..L.L.....,#L#LLLL#L#,#.LLLLLL.L,#.#L#L#.##")]
+        [TestCase("#.#L.L#.##,#LLL#LL.L#,L.L.L..#..,#LLL.##.L#,#.LL.LL.LL,#.LL#L#.##,..L.L.....,#L#LLLL#L#,#.LLLLLL.L,#.#L#L#.##", "#.#L.L#.##,#LLL#LL.L#,L.#.L..#..,#L##.##.L#,#.#L.LL.LL,#.#L#L#.##,..L.L.....,#L#L##L#L#,#.LLLLLL.L,#.#L#L#.##")]
+        public void Day11_AssignSeats(string inputString, string resultString)
+        {
+            var input = inputString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            var result = resultString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            Assert.AreEqual(result, _service.AssignSeats(input, 4, true));
+        }
+
+        [Test]
+        [TestCase("L.LL.LL.LL,LLLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLLL,L.LLLLLL.L,L.LLLLL.LL", "#.##.##.##,#######.##,#.#.#..#..,####.##.##,#.##.##.##,#.#####.##,..#.#.....,##########,#.######.#,#.#####.##")]
+        [TestCase("#.##.##.##,#######.##,#.#.#..#..,####.##.##,#.##.##.##,#.#####.##,..#.#.....,##########,#.######.#,#.#####.##", "#.LL.LL.L#,#LLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLL#,#.LLLLLL.L,#.LLLLL.L#")]
+        [TestCase("#.LL.LL.L#,#LLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLL#,#.LLLLLL.L,#.LLLLL.L#", "#.L#.##.L#,#L#####.LL,L.#.#..#..,##L#.##.##,#.##.#L.##,#.#####.#L,..#.#.....,LLL####LL#,#.L#####.L,#.L####.L#")]
+        [TestCase("#.L#.##.L#,#L#####.LL,L.#.#..#..,##L#.##.##,#.##.#L.##,#.#####.#L,..#.#.....,LLL####LL#,#.L#####.L,#.L####.L#", "#.L#.L#.L#,#LLLLLL.LL,L.L.L..#..,##LL.LL.L#,L.LL.LL.L#,#.LLLLL.LL,..L.L.....,LLLLLLLLL#,#.LLLLL#.L,#.L#LL#.L#")]
+        [TestCase("#.L#.L#.L#,#LLLLLL.LL,L.L.L..#..,##LL.LL.L#,L.LL.LL.L#,#.LLLLL.LL,..L.L.....,LLLLLLLLL#,#.LLLLL#.L,#.L#LL#.L#", "#.L#.L#.L#,#LLLLLL.LL,L.L.L..#..,##L#.#L.L#,L.L#.#L.L#,#.L####.LL,..#.#.....,LLL###LLL#,#.LLLLL#.L,#.L#LL#.L#")]
+        [TestCase("#.L#.L#.L#,#LLLLLL.LL,L.L.L..#..,##L#.#L.L#,L.L#.#L.L#,#.L####.LL,..#.#.....,LLL###LLL#,#.LLLLL#.L,#.L#LL#.L#", "#.L#.L#.L#,#LLLLLL.LL,L.L.L..#..,##L#.#L.L#,L.L#.LL.L#,#.LLLL#.LL,..#.L.....,LLL###LLL#,#.LLLLL#.L,#.L#LL#.L#")]
+        public void Day11_AssignSeatsWithDirectionalOccupation(string inputString, string resultString)
+        {
+            var input = inputString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            var result = resultString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            Assert.AreEqual(result, _service.AssignSeats(input, 5, false));
+        }
+
+        [Test]
+        [TestCase(".......#.,...#.....,.#.......,.........,..#L....#,....#....,.........,#........,...#.....", 3, 4, 8)]
+        [TestCase(".............,.L.L.#.#.#.#.,.............", 1, 1, 0)]
+        [TestCase(".##.##.,#.#.#.#,##...##,...L...,##...##,#.#.#.#,.##.##.", 3, 3, 0)]
+        public void Day11_GetDirectionalOccupiedSeats(string inputString, int seatX, int seatY, int result)
+        {
+            var seatPlan = inputString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            Assert.AreEqual(result, _service.SurroundingOccupiedSeats(seatY, seatX, seatPlan, false));
+        }
+
+        [Test]
+        [TestCase("L.LL.LL.LL,LLLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLLL,L.LLLLLL.L,L.LLLLL.LL", 4, true, 37)]
+        [TestCase("L.LL.LL.LL,LLLLLLL.LL,L.L.L..L..,LLLL.LL.LL,L.LL.LL.LL,L.LLLLL.LL,..L.L.....,LLLLLLLLLL,L.LLLLLL.L,L.LLLLL.LL", 5, false, 26)]
+        public void Day11_GetFinalSeatPlan(string inputString, int occupiedSeatTolerance, bool adjacentSeats, int result)
+        {
+            var input = inputString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
+            var finalSeatPlan = _service.GetFinalSeatPlan(input, occupiedSeatTolerance, adjacentSeats);
+            Assert.AreEqual(result, finalSeatPlan.Select(x => x.Count(y => y == '#')).Sum());
+        }
+        #endregion
+
     }
 }

@@ -580,5 +580,132 @@ namespace AdventOfCode.Services
             }
         }
         #endregion
+
+        #region Day 11
+        public char[][] ConvertDay11Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => x.Select(y=>y).ToArray()).ToArray();
+        }
+
+        public long Day11_PuzzleOne(char[][] input)
+        {
+            return GetFinalSeatPlan(input, 4, true).Select(x => x.Count(y => y == '#')).Sum();
+        }
+
+        public long Day11_PuzzleTwo(char[][] input)
+        {
+            return GetFinalSeatPlan(input, 5, false).Select(x => x.Count(y => y == '#')).Sum();
+        }
+
+        public IEnumerable<IEnumerable<char>> GetFinalSeatPlan(IList<IList<char>> seatPlan, int occupiedSeatTolerance, bool adjacentSeats)
+        {
+            IList<IList<char>> oldSeatPlan = new List<IList<char>>();
+
+            while (!ComparePlans(seatPlan, oldSeatPlan))
+            {
+                oldSeatPlan = seatPlan;
+                seatPlan = AssignSeats(seatPlan, occupiedSeatTolerance, adjacentSeats);
+            }
+            return seatPlan;
+        }
+
+        public bool ComparePlans(IList<IList<char>> seatPlan1, IList<IList<char>> seatPlan2)
+        {
+            if (seatPlan1.Count != seatPlan2.Count)
+                return false;
+            for (var i = 0; i < seatPlan1.Count; i++)
+            {
+                for (var j = 0; j < seatPlan1[i].Count; j++)
+                {
+                    if (seatPlan1[i][j] != seatPlan2[i][j])
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public IList<IList<char>> AssignSeats(IList<IList<char>> seatPlan, int occupiedSeatTolerance, bool adjacentSeats)
+        {
+            var newSeatPlan = seatPlan.Select(x => x.Select(y => y).ToList()).ToList();
+            for (var i = 0; i < seatPlan.Count; i++)
+            {
+                for (var j = 0; j < seatPlan[i].Count; j++)
+                {
+                    if (seatPlan[i][j] == '.')
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        var surroundingOccupiedSeats = SurroundingOccupiedSeats(i, j, seatPlan, adjacentSeats);
+                        if (seatPlan[i][j] == 'L' && surroundingOccupiedSeats == 0)
+                        {
+                            newSeatPlan[i][j] = '#';
+                        }
+                        else if (seatPlan[i][j] == '#' && surroundingOccupiedSeats >= occupiedSeatTolerance)
+                        {
+                            newSeatPlan[i][j] = 'L';
+                        }
+                    }
+                }
+            }
+
+            IList<IList<char>> result = new List<IList<char>>();
+            newSeatPlan.ForEach(x => result.Add(x));
+            return result;
+        }
+
+        private static List<(int, int)> Directions = new List<(int, int)>() { (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1) };
+
+
+        public int SurroundingOccupiedSeats(int seatY, int seatX, IList<IList<char>> seatPlan, bool adjacentSeats)
+        {
+            var result = 0;
+            if (adjacentSeats)
+            {
+                for (var i = seatY - 1; i <= seatY + 1; i++)
+                {
+                    if (i < 0 || i >= seatPlan.Count)
+                        continue;
+                    for (var j = seatX - 1; j <= seatX + 1; j++)
+                    {
+                        if (j < 0 || j >= seatPlan[i].Count || (i == seatY && j == seatX))
+                            continue;
+                        if (seatPlan[i][j] == '#') result++;
+                    }
+                }
+            }
+            else
+            {
+                var foundDirections = new List<(int, int)>();
+                for (var i = 1; i < seatPlan.Count; i++)
+                {
+                    foreach (var direction in Directions)
+                    {
+                        if (!foundDirections.Contains(direction))
+                        {
+                            var viewX = seatX + i * direction.Item2;
+                            var viewY = seatY + i * direction.Item1;
+                            if (viewY < 0 || viewY >= seatPlan.Count || viewX < 0 || viewX >= seatPlan[viewY].Count)
+                            {
+                                foundDirections.Add(direction);
+                            }
+                            else
+                            {
+                                var position = seatPlan[seatY + i * direction.Item1][seatX + i * direction.Item2];
+                                if (position != '.')
+                                    foundDirections.Add(direction);
+                                if (position == '#')
+                                    result++;
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+        #endregion
     }
 }
