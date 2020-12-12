@@ -584,7 +584,7 @@ namespace AdventOfCode.Services
         #region Day 11
         public char[][] ConvertDay11Input(string inputPath)
         {
-            return File.ReadAllLines(inputPath).Select(x => x.Select(y=>y).ToArray()).ToArray();
+            return File.ReadAllLines(inputPath).Select(x => x.Select(y => y).ToArray()).ToArray();
         }
 
         public long Day11_PuzzleOne(char[][] input)
@@ -705,6 +705,166 @@ namespace AdventOfCode.Services
                 }
             }
             return result;
+        }
+        #endregion
+
+        #region Day 12
+        public IEnumerable<string> ConvertDay12Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath);
+        }
+
+        public long Day12_PuzzleOne(IEnumerable<string> input)
+        {
+            var ship = new Ship
+            {
+                UseWaypoint = false,
+                VectorX = 1
+            };
+            foreach(var instruction in input)
+            {
+                ship.ProcessInstruction(instruction);
+            }
+            return ship.ManhattanDistance;
+        }
+
+        public long Day12_PuzzleTwo(IEnumerable<string> input)
+        {
+            var ship = new Ship
+            {
+                UseWaypoint = true,
+                WaypointX = 10,
+                WaypointY = 1
+            };
+            foreach (var instruction in input)
+            {
+                ship.ProcessInstruction(instruction);
+            }
+            return ship.ManhattanDistance;
+        }
+
+        public class Ship
+        {
+            private int vectorX;
+            private int vectorY;
+
+            public bool UseWaypoint { get; set; }
+
+            public int PositionX { get; set; }
+
+            public int PositionY { get; set; }
+
+            public int WaypointX { get; set; }
+
+            public int WaypointY { get; set; }
+
+            public int VectorX
+            {
+                get
+                {
+                    if (UseWaypoint)
+                        return WaypointX - PositionX;
+                    return vectorX;
+                }
+                set
+                {
+                    vectorX = value;
+                }
+            }
+
+            public int VectorY 
+            {
+                get
+                {
+                    if (UseWaypoint)
+                        return WaypointY - PositionY;
+                    return vectorY;
+                }
+                set
+                {
+                    vectorY = value;
+                }
+            }
+
+            public int ManhattanDistance
+            {
+                get
+                {
+                    return Math.Abs(PositionX) + Math.Abs(PositionY);
+                }
+            }
+
+            public void ProcessInstruction(string instruction)
+            {
+                var command = Regex.Replace(instruction, @"[\d-]", string.Empty);
+                int.TryParse(instruction.Replace(command, ""), out int value);
+                if (command == "L" || command == "R") Rotate(command, value);
+                else Move(command, value);
+            }
+
+            public void Move(string direction, int distance)
+            {
+                if (direction == "S" || direction == "W") distance = -distance;
+                if (direction == "N" || direction == "S")
+                {
+                    if (UseWaypoint)
+                        WaypointY += distance;
+                    else
+                        PositionY += distance;
+                }
+                if (direction == "E" || direction == "W")
+                {
+                    if (UseWaypoint)
+                        WaypointX += distance;
+                    else
+                        PositionX += distance;
+                }
+                if (direction == "F")
+                {
+                    var vectorSumX = distance * VectorX;
+                    var vectorSumY = distance * VectorY;
+                    PositionX += vectorSumX;
+                    PositionY += vectorSumY;
+                    if (UseWaypoint)
+                    {
+                        WaypointX += vectorSumX;
+                        WaypointY += vectorSumY;
+                    }
+                }
+            }
+
+            public void Rotate(string direction, int degree)
+            {
+                var radians = Math.PI * degree / 180.0;
+                var lastVectorX = VectorX;
+                var lastWaypointX = WaypointX;
+                if (direction == "R")
+                {
+                    if (UseWaypoint)
+                    {
+                        WaypointX = Convert.ToInt32(Math.Cos(radians) * (WaypointX - PositionX) + Math.Sin(radians) * (WaypointY - PositionY)) + PositionX;
+                        WaypointY = Convert.ToInt32(-Math.Sin(radians) * (lastWaypointX - PositionX) + Math.Cos(radians) * (WaypointY - PositionY)) + PositionY;
+                    }
+                    else
+                    {
+                        vectorX = Convert.ToInt32(Math.Cos(radians) * VectorX + Math.Sin(radians) * VectorY);
+                        vectorY = Convert.ToInt32(-Math.Sin(radians) * lastVectorX + Math.Cos(radians) * VectorY);
+                    }
+                }
+                else
+                {
+                    if (UseWaypoint)
+                    {
+                        WaypointX = Convert.ToInt32(Math.Cos(radians) * (WaypointX - PositionX) - Math.Sin(radians) * (WaypointY - PositionY)) + PositionX;
+                        WaypointY = Convert.ToInt32(Math.Sin(radians) * (lastWaypointX - PositionX) + Math.Cos(radians) * (WaypointY - PositionY)) + PositionY;
+                    }
+                    else
+                    {
+                        vectorX = Convert.ToInt32(Math.Cos(radians) * VectorX - Math.Sin(radians) * VectorY);
+                        vectorY = Convert.ToInt32(Math.Sin(radians) * lastVectorX + Math.Cos(radians) * VectorY);
+                    }
+                }
+            }
         }
         #endregion
     }

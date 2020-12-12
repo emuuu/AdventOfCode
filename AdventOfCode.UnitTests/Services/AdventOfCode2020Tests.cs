@@ -3,6 +3,7 @@ using AdventOfCode.Services;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using static AdventOfCode.Services.AdventOfCode2020;
 
 namespace AdventOfCode.Services.UnitTests
 {
@@ -358,6 +359,50 @@ namespace AdventOfCode.Services.UnitTests
             var input = inputString.Split(',').Select(x => x.Select(y => y).ToArray()).ToArray();
             var finalSeatPlan = _service.GetFinalSeatPlan(input, occupiedSeatTolerance, adjacentSeats);
             Assert.AreEqual(result, finalSeatPlan.Select(x => x.Count(y => y == '#')).Sum());
+        }
+        #endregion
+
+        #region Day 12
+        [Test]
+        [TestCase("F10,N3,F7,R90,F11", 25)]
+        public void Day12_MoveShip(string instructions, int result)
+        {
+            var ship = new Ship
+            {
+                UseWaypoint = false,
+                VectorX = 1
+            };
+
+            foreach (var instruction in instructions.Split(','))
+            {
+                ship.ProcessInstruction(instruction);
+            }
+            Assert.AreEqual(result, ship.ManhattanDistance);
+        }
+
+        [Test]
+        [TestCase("F10,N3,F7,R90,F11", new int[] { 100, 100, 170, 170, 214 }, new int[] { 10, 10, 38, 38, -72 }, new int[] { 110, 110, 180, 174, 218 }, new int[] { 11, 14, 42, 28, -82 }, 286)]
+        public void Day12_MoveShipWithWaypoint(string instructions, int[] shipPosX, int[] shipPosY, int[] wayX, int[] wayY, int result)
+        {
+            var ship = new Ship
+            {
+                UseWaypoint = true,
+                VectorX = 1,
+                WaypointX = 10,
+                WaypointY = 1
+            };
+
+            var i = 0;
+            foreach (var instruction in instructions.Split(','))
+            {
+                ship.ProcessInstruction(instruction);
+                Assert.AreEqual(shipPosX[i], ship.PositionX);
+                Assert.AreEqual(shipPosY[i], ship.PositionY);
+                Assert.AreEqual(wayX[i], ship.WaypointX);
+                Assert.AreEqual(wayY[i], ship.WaypointY);
+                i++;
+            }
+            Assert.AreEqual(result, ship.ManhattanDistance);
         }
         #endregion
 
