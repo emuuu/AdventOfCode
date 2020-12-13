@@ -721,7 +721,7 @@ namespace AdventOfCode.Services
                 UseWaypoint = false,
                 VectorX = 1
             };
-            foreach(var instruction in input)
+            foreach (var instruction in input)
             {
                 ship.ProcessInstruction(instruction);
             }
@@ -772,7 +772,7 @@ namespace AdventOfCode.Services
                 }
             }
 
-            public int VectorY 
+            public int VectorY
             {
                 get
                 {
@@ -865,6 +865,58 @@ namespace AdventOfCode.Services
                     }
                 }
             }
+        }
+        #endregion
+
+        #region Day 13
+        public List<string> ConvertDay13Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
+
+        public long Day13_PuzzleOne(List<string> input)
+        {
+            var timestamp = int.Parse(input[0]);
+            var schedules = input[1].Split(',').Where(x => !x.Equals("x")).Select(x => int.Parse(x)); 
+            var closestBus = GetClosestBus(timestamp, schedules);
+            return (long)(closestBus * Math.Ceiling(timestamp / (double)closestBus) - timestamp) * closestBus;
+
+        }
+
+        public long Day13_PuzzleTwo(List<string> input)
+        {
+            return GetEarliestTimestamp(input[1].Split(','));
+        }
+
+        public int GetClosestBus(int timestamp, IEnumerable<int> schedules)
+        {
+            return schedules.Aggregate((x1, x2) => x1 * Math.Ceiling(timestamp / (double)x1) - timestamp < x2 * Math.Ceiling(timestamp / (double)x2) - timestamp ? x1 : x2);
+        }
+
+        public long GetEarliestTimestamp(IEnumerable<string> schedules)
+        {
+            var activeBuses = schedules.Select((value, index) => new { Value = value, Index = index }).Where(x => !x.Value.Equals("x")).Select(x => new { Value = long.Parse(x.Value), Index = x.Index }).OrderByDescending(x => x.Value).ToList();
+            var timestamp = activeBuses.Select(x => x.Value - x.Index).First();
+            var stepSize = timestamp;
+            for (var i = 1; i <= activeBuses.Count; i++)
+            {
+                while (activeBuses.Take(i).Any(x => (timestamp + x.Index) % x.Value != 0))
+                {
+                    timestamp += stepSize;
+                }
+                stepSize = activeBuses.Take(i).Select(t => t.Value).Aggregate(LCM);
+
+            }
+            return timestamp;
+        }
+
+        private long LCM(long x, long y)
+        {
+            return x * y / GCD(x, y);
+        }
+        private long GCD(long x, long y)
+        {
+            return y == 0 ? x : GCD(y, x % y);
         }
         #endregion
     }

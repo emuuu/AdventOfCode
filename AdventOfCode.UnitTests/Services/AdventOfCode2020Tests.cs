@@ -406,5 +406,28 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 13
+        [Test]
+        [TestCase(939, "7,13,x,x,59,x,31,19", 295)]
+        public void Day13_GetClosestBus(int timestamp, string busIDs, int result)
+        {
+            var activeBuses = busIDs.Split(',').Where(x => int.TryParse(x, out _)).Select(x => int.Parse(x));
+            var closestBus = _service.GetClosestBus(timestamp, activeBuses);
+            Assert.AreEqual(result, (closestBus * Math.Ceiling(timestamp / (double)closestBus) - timestamp) * closestBus);
+        }
+
+        [Test]
+        [TestCase("7,13,x,x,59,x,31,19", 1068781)]
+        [TestCase("17,x,13,19", 3417)]
+        [TestCase("67,7,59,61", 754018)]
+        [TestCase("67,x,7,59,61", 779210)]
+        [TestCase("67,7,x,59,61", 1261476)]
+        [TestCase("1789,37,47,1889", 1202161486)]
+        public void Day13_GetEarliestTimestamp(string busIDs, int result)
+        {
+                Assert.AreEqual(result, _service.GetEarliestTimestamp(busIDs.Split(',')));
+        }
+        #endregion
+
     }
 }
