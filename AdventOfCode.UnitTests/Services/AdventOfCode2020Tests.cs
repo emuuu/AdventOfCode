@@ -425,7 +425,23 @@ namespace AdventOfCode.Services.UnitTests
         [TestCase("1789,37,47,1889", 1202161486)]
         public void Day13_GetEarliestTimestamp(string busIDs, int result)
         {
-                Assert.AreEqual(result, _service.GetEarliestTimestamp(busIDs.Split(',')));
+            Assert.AreEqual(result, _service.GetEarliestTimestamp(busIDs.Split(',')));
+        }
+        #endregion
+
+        #region Day 14
+        [Test]
+        [TestCase("mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X,mem[8] = 11,mem[7] = 101,mem[8] = 0", true, 165)]
+        [TestCase("mask = 000000000000000000000000000000X1001X,mem[42] = 100,mask = 00000000000000000000000000000000X0XX, mem[26] = 1", false, 208)]
+        public void Day14_BitProcessor(string inputString, bool versionOne, int result)
+        {
+            var input = _service.ParseDay14Input(inputString.Split(','));
+            var memory = new Dictionary<long, long>();
+            foreach (var mask in input)
+            {
+                memory = _service.ProcessBitMask(memory, mask.Key, mask.Value, versionOne);
+            }
+            Assert.AreEqual(result, memory.Values.Sum());
         }
         #endregion
 

@@ -1,5 +1,6 @@
 ﻿using AdventOfCode.Extensions;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -877,7 +878,7 @@ namespace AdventOfCode.Services
         public long Day13_PuzzleOne(List<string> input)
         {
             var timestamp = int.Parse(input[0]);
-            var schedules = input[1].Split(',').Where(x => !x.Equals("x")).Select(x => int.Parse(x)); 
+            var schedules = input[1].Split(',').Where(x => !x.Equals("x")).Select(x => int.Parse(x));
             var closestBus = GetClosestBus(timestamp, schedules);
             return (long)(closestBus * Math.Ceiling(timestamp / (double)closestBus) - timestamp) * closestBus;
 
@@ -919,5 +920,131 @@ namespace AdventOfCode.Services
             return y == 0 ? x : GCD(y, x % y);
         }
         #endregion
+
+        #region Day 14
+        public Dictionary<string, List<long[]>> ConvertDay14Input(string inputPath)
+        {
+            return ParseDay14Input(File.ReadAllLines(inputPath));
+        }
+
+        public Dictionary<string, List<long[]>> ParseDay14Input(IEnumerable<string> input)
+        {
+            var result = new Dictionary<string, List<long[]>>();
+            var currentMask = string.Empty;
+            var currentMaskAddressUpdates = new List<long[]>();
+            foreach (var line in input)
+            {
+                if (line.StartsWith("mask"))
+                {
+                    if (currentMask != string.Empty)
+                        result.Add(currentMask, currentMaskAddressUpdates);
+                    currentMask = line.Split(' ').Last();
+                    currentMaskAddressUpdates = new List<long[]>();
+                }
+                else
+                {
+                    var index = long.Parse(String.Join(";", Regex.Matches(line, @"\[(.+?)\]")
+                                    .Cast<Match>()
+                                    .Select(m => m.Groups[1].Value)));
+                    var value = long.Parse(line.Split(' ').Last());
+
+                    currentMaskAddressUpdates.Add(new long[] { index, value });
+                }
+            }
+            result.Add(currentMask, currentMaskAddressUpdates);
+
+            return result;
+        }
+
+
+        public long Day14_PuzzleOne(Dictionary<string, List<long[]>> input)
+        {
+           var memory = new Dictionary<long, long>();
+            foreach (var mask in input)
+            {
+                memory = ProcessBitMask(memory, mask.Key, mask.Value, true);
+            }
+            return memory.Values.Sum();
+        }
+
+        public long Day14_PuzzleTwo(Dictionary<string, List<long[]>> input)
+        {
+            var memory = new Dictionary<long, long>();
+            foreach (var mask in input)
+            {
+                memory = ProcessBitMask(memory, mask.Key, mask.Value, false);
+            }
+            return memory.Values.Sum();
+        }
+
+        public Dictionary<long, long> ProcessBitMask(Dictionary<long, long> memory, string maskInput, List<long[]> values, bool versionOne)
+        {
+            var mask = maskInput.ToCharArray();
+            mask.Reverse();
+
+            foreach (var value in values)
+            {
+                if (versionOne)
+                {
+                    var binary = ConvertToBit(value[1], 36);
+                    for (var i = 0; i < mask.Length; i++)
+                    {
+                        binary[i] = mask[i] == 'X' ? binary[i] : mask[i];
+                    }
+                    memory[value[0]] = Convert.ToInt64(new string(binary), 2);
+                }
+                else
+                {
+                    var binary = ConvertToBit(value[0], 36);
+                    for (var i = 0; i < mask.Length; i++)
+                    {
+                        binary[i] = mask[i] == '0' ? binary[i] : mask[i];
+                    }
+                    var floatingIndices = binary.Select((value, index) => new { Value = value, Index = index }).Where(x => x.Value == 'X').Select(x =>x.Index ).ToList();
+                    
+                    if (!floatingIndices.Any())
+                    {
+                        memory[Convert.ToInt64(new string(binary), 2)] = value[1];
+                    }
+                    else
+                    {
+                        for(var i = 0; i < (int)Math.Pow(2, floatingIndices.Count); i++)
+                        {
+                            var updateBits = ConvertToBit(i, floatingIndices.Count);
+                            for(var j = 0; j < floatingIndices.Count; j++)
+                            {
+                                binary[floatingIndices[j]] = updateBits[j];
+                            }
+                            memory[Convert.ToInt64(new string(binary), 2)] = value[1];
+                        }
+                    }
+                }
+
+            }
+            return memory;
+        }
+
+        private char[] ConvertToBit(long input, int length)
+        {
+            var bitValue = Convert.ToString(input, 2);
+            while (bitValue.Length < length)
+            {
+                bitValue = "0" + bitValue;
+            }
+            var bit = bitValue.ToCharArray();
+            bit.Reverse();
+            return bit;
+        }
+        #endregion
+    }
+
+    public static class IEnumerablerExtension
+    {
+        public static IEnumerable<IEnumerable<T>> DifferentCombinations<T>(this IEnumerable<T> elements, int k)
+        {
+            return k == 0 ? new[] { new T[0] } :
+              elements.SelectMany((e, i) =>
+                elements.Skip(i + 1).DifferentCombinations(k - 1).Select(c => (new[] { e }).Concat(c)));
+        }
     }
 }
