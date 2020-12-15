@@ -1,6 +1,7 @@
 ﻿using AdventOfCode.Extensions;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -959,7 +960,7 @@ namespace AdventOfCode.Services
 
         public long Day14_PuzzleOne(Dictionary<string, List<long[]>> input)
         {
-           var memory = new Dictionary<long, long>();
+            var memory = new Dictionary<long, long>();
             foreach (var mask in input)
             {
                 memory = ProcessBitMask(memory, mask.Key, mask.Value, true);
@@ -1000,18 +1001,18 @@ namespace AdventOfCode.Services
                     {
                         binary[i] = mask[i] == '0' ? binary[i] : mask[i];
                     }
-                    var floatingIndices = binary.Select((value, index) => new { Value = value, Index = index }).Where(x => x.Value == 'X').Select(x =>x.Index ).ToList();
-                    
+                    var floatingIndices = binary.Select((value, index) => new { Value = value, Index = index }).Where(x => x.Value == 'X').Select(x => x.Index).ToList();
+
                     if (!floatingIndices.Any())
                     {
                         memory[Convert.ToInt64(new string(binary), 2)] = value[1];
                     }
                     else
                     {
-                        for(var i = 0; i < (int)Math.Pow(2, floatingIndices.Count); i++)
+                        for (var i = 0; i < (int)Math.Pow(2, floatingIndices.Count); i++)
                         {
                             var updateBits = ConvertToBit(i, floatingIndices.Count);
-                            for(var j = 0; j < floatingIndices.Count; j++)
+                            for (var j = 0; j < floatingIndices.Count; j++)
                             {
                                 binary[floatingIndices[j]] = updateBits[j];
                             }
@@ -1034,6 +1035,42 @@ namespace AdventOfCode.Services
             var bit = bitValue.ToCharArray();
             bit.Reverse();
             return bit;
+        }
+        #endregion
+
+        #region Day 15
+        public List<int> ConvertDay15Input(string inputPath)
+        {
+            return File.ReadAllText(inputPath).Split(',').Select(x => int.Parse(x)).ToList();
+        }
+
+
+        public long Day15_PuzzleOne(List<int> input)
+        {
+            return MemorySolver(input, 2020);
+        }
+
+        public long Day15_PuzzleTwo(List<int> input)
+        {
+            return MemorySolver(input, 30000000);
+        }
+
+        public long MemorySolver(List<int> starterNumbers, int resultTurn)
+        {
+            var recentNumbers = new Dictionary<int, int>();
+            for (int i = 0; i < starterNumbers.Count - 1; i++)
+                recentNumbers[starterNumbers[i]] = i + 1;
+
+            var lastValue = starterNumbers.Last();
+
+            for (int turn = starterNumbers.Count; turn < resultTurn; turn++)
+            {
+                if (!recentNumbers.TryGetValue(lastValue, out int previous))
+                    previous = -1;
+                recentNumbers[lastValue] = turn;
+                lastValue = previous != -1 ? turn - previous : 0;
+            }
+            return lastValue;
         }
         #endregion
     }
