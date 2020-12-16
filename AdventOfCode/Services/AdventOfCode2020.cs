@@ -1073,5 +1073,102 @@ namespace AdventOfCode.Services
             return lastValue;
         }
         #endregion
+
+        #region Day 16
+        public TicketOverview ConvertDay16Input(string inputPath)
+        {
+            return ParseTicketOverview(File.ReadAllLines(inputPath).ToList());
+        }
+
+        public TicketOverview ParseTicketOverview(List<string> input)
+        {
+            var lines = input.Select((line, index) => new { Line = line, Index = index });
+            var lastEmptyline = -1;
+            var blocks = new List<List<string>>();
+            foreach (var index in lines.Where(x => string.IsNullOrEmpty(x.Line)).Select(x => x.Index))
+            {
+                blocks.Add(lines.Skip(lastEmptyline + 1).Take(index - lastEmptyline - 1).Select(x => x.Line).ToList());
+                lastEmptyline = index;
+            }
+            blocks.Add(lines.Skip(lastEmptyline + 1).Select(x => x.Line).ToList());
+
+            return new TicketOverview
+            {
+                Rules = blocks[0].ToDictionary(
+                                    x => x.Split(':')[0],
+                                    x => x.Split(':')[1].Split(new string[] { "or" }, StringSplitOptions.None).Select(y => new Tuple<int, int>(int.Parse(y.Trim().Split('-')[0]), int.Parse(y.Trim().Split('-')[1]))).ToList()),
+                OwnTicket = blocks[1][1].Split(',').Select(x => int.Parse(x)).ToList(),
+                NearbyTickets = blocks[2].Skip(1).Select(x => x.Split(',').Select(y => int.Parse(y)).ToList()).ToList()
+            };
+        }
+
+
+        public int Day16_PuzzleOne(TicketOverview input)
+        {
+            return input.ScanningErrorRate;
+        }
+
+        public long Day16_PuzzleTwo(TicketOverview input)
+        {
+            input.DiscardInvalidTickets();
+            var ticket = input.AllignTicketValuesWithRules();
+            return ticket.Where(x => x.Key.StartsWith("departure")).Select(x => (long)x.Value).Aggregate((a, x) => a * x);
+        }
+
+        public class TicketOverview
+        {
+            public Dictionary<string, List<Tuple<int, int>>> Rules { get; set; }
+
+            public List<int> OwnTicket { get; set; }
+
+            public List<List<int>> NearbyTickets { get; set; }
+
+            public void DiscardInvalidTickets()
+            {
+                NearbyTickets = NearbyTickets.Where(x => !x.Any(y => !CompliesToAnyRule(y))).ToList();
+            }
+
+            public Dictionary<string, int> AllignTicketValuesWithRules()
+            {
+                var fieldNames = Rules.Select(x => x.Key);
+
+                NearbyTickets.Add(OwnTicket);
+                var ticketFields = NearbyTickets.SelectMany(inner => inner.Select((item, index) => new { item, index }))
+                                    .GroupBy(i => i.index, i => i.item)
+                                    .Select(g => g.ToList())
+                                    .Select((value, Index) => new { Value = value, Index = Index })
+                                    .ToList();
+                var ruleMatches = Rules.SelectMany(x => ticketFields.Where(y => !y.Value.Any(z => !CompliesToRule(x.Value, z))).Select(y => new Tuple<string, int>(x.Key, y.Index)).ToList()).ToList();
+                ruleMatches.Sort((a, b) => ruleMatches.Count(x => x.Item1 == a.Item1) - ruleMatches.Count(x => x.Item1 == b.Item1));
+
+                while (ruleMatches.Any(x => ruleMatches.Count(y => y.Item1 == x.Item1) > 1))
+                {
+                    foreach (var singleMatch in ruleMatches.Where(y => ruleMatches.Count(z => z.Item1 == y.Item1) == 1 && ruleMatches.Count(z => z.Item2 == y.Item2) > 1))
+                    {
+                        ruleMatches = ruleMatches.Where(x => x.Item2 != singleMatch.Item2 || (x.Item1 == singleMatch.Item1)).ToList();
+                    }
+                }
+                return ruleMatches.OrderBy(x => x.Item2).ToDictionary(x => x.Item1, x => OwnTicket[x.Item2]);
+            }
+
+            private bool CompliesToRule(List<Tuple<int, int>> rule, int ticketValue)
+            {
+                return rule.Any(x => x.Item1 <= ticketValue && x.Item2 >= ticketValue);
+            }
+
+            private bool CompliesToAnyRule(int ticketValue)
+            {
+                return Rules.Any(x => CompliesToRule(x.Value, ticketValue));
+            }
+
+            public int ScanningErrorRate
+            {
+                get
+                {
+                    return NearbyTickets.SelectMany(x => x.Select(y => y)).Where(x => !CompliesToAnyRule(x)).Sum();
+                }
+            }
+        }
+        #endregion
     }
 }
