@@ -1139,8 +1139,6 @@ namespace AdventOfCode.Services
 
             public Dictionary<string, int> AllignTicketValuesWithRules()
             {
-                var fieldNames = Rules.Select(x => x.Key);
-
                 NearbyTickets.Add(OwnTicket);
                 var ticketFields = NearbyTickets.SelectMany(inner => inner.Select((item, index) => new { item, index }))
                                     .GroupBy(i => i.index, i => i.item)
