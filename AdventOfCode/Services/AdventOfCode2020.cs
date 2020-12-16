@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -26,12 +27,17 @@ namespace AdventOfCode.Services
             var puzzle2Method = type.GetMethod("Day" + day + "_PuzzleTwo");
 
             var result = new List<string>() { "Day " + day };
+            var watch = new Stopwatch();
             if (inputMethod != null)
             {
                 if (puzzle1Method != null)
                 {
                     var input = inputMethod.Invoke(this, new object[] { inputPath });
-                    result.Add("Puzzle 1: " + puzzle1Method.Invoke(this, new object[] { input }));
+                    watch.Start();
+                    var puzzleResult = puzzle1Method.Invoke(this, new object[] { input });
+                    watch.Stop();
+
+                    result.Add($"Puzzle 1: {puzzleResult} ({watch.ElapsedMilliseconds} ms)");
                 }
                 else
                 {
@@ -40,7 +46,10 @@ namespace AdventOfCode.Services
                 if (puzzle2Method != null)
                 {
                     var input = inputMethod.Invoke(this, new object[] { inputPath });
-                    result.Add("Puzzle 2: " + puzzle2Method.Invoke(this, new object[] { input }));
+                    watch.Restart();
+                    var puzzleResult = puzzle2Method.Invoke(this, new object[] { input });
+                    watch.Stop();
+                    result.Add($"Puzzle 2: {puzzleResult} ({watch.ElapsedMilliseconds} ms)");
                 }
                 else
                 {
