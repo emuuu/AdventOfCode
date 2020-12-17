@@ -491,5 +491,12 @@ namespace AdventOfCode.Services.UnitTests
         }
         #endregion
 
+        #region Day 17
+        /*
+        brain got messed up by the example (different coordinate scale from actual cube position)
+        lost joy after realising that I've been working on a wrong example so no unit test today
+        */
+        #endregion
+
     }
 }
