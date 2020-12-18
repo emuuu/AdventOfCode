@@ -1271,5 +1271,156 @@ namespace AdventOfCode.Services
             return (x: a.x + b.x, y: a.y + b.y, z: a.z + b.z, w: a.w + b.w);
         }
         #endregion
+
+        #region Day 18
+        public List<List<char>> ConvertDay18Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x=> $"({x})".Replace(" ", string.Empty).ToCharArray().ToList()).ToList();
+        }
+
+        public long Day18_PuzzleOne(List<List<char>> input)
+        {
+            return input.Select(x=> SolveTerm(x, false)).Sum();
+        }
+
+        public long Day18_PuzzleTwo(List<List<char>> input)
+        {
+            return input.Select(x => SolveTerm(x, true)).Sum();
+        }
+
+        public long SolveTerm(List<char> term, bool additionPrecedence)
+        {
+            var openingBrackets = term.Select((x, index) => new { X = x, Index = index }).Where(x => x.X == '(').Select(x => x.Index).ToList();
+            var closingBrackets = term.Select((x, index) => new { X = x, Index = index }).Where(x => x.X == ')').Select(x => x.Index).ToList();
+            var bracketRanges = openingBrackets.Select(ob => (a: ob, b: closingBrackets.Where(cb => cb > ob && openingBrackets.Count(x => x > ob && x < cb) - closingBrackets.Count(x => x > ob && x < cb) == 0).First())).ToList();
+
+            if (additionPrecedence)
+            {
+                var additions = term.Count(x => x == '+');
+                for (var i = 0; i < term.Count(x => x == '+'); i++)
+                {
+                    var adjustTerm = term.Select(x => x.ToString()).ToList();
+                    var additionIndex = term.Select((x, index) => new { X = x, Index = index }).Where(x => x.X == '+').Skip(i).Select(x => x.Index).First();
+                    var bottomBracket = bracketRanges.FirstOrDefault(x => x.Item2 == additionIndex - 1);
+                    var bottomAdjustIndex = bottomBracket == default ? additionIndex - 1 : bottomBracket.a;
+
+                    var topBracket = bracketRanges.FirstOrDefault(x => x.Item1 == additionIndex + 1);
+                    var topAdjustIndex = topBracket == default ? additionIndex + 1 : topBracket.b;
+
+                    if (!bracketRanges.Any(x => x.a == bottomAdjustIndex - 1 && x.b == topAdjustIndex + 1))
+                    {
+                        adjustTerm[bottomAdjustIndex] = "(" + adjustTerm[bottomAdjustIndex];
+                        adjustTerm[topAdjustIndex] = adjustTerm[topAdjustIndex] + ")";
+                    }
+
+                    term = adjustTerm.SelectMany(x => x.ToCharArray()).ToList();
+                    openingBrackets = term.Select((x, index) => new { X = x, Index = index }).Where(x => x.X == '(').Select(x => x.Index).ToList();
+                    closingBrackets = term.Select((x, index) => new { X = x, Index = index }).Where(x => x.X == ')').Select(x => x.Index).ToList();
+                    bracketRanges = openingBrackets.Select(ob => (a: ob, b: closingBrackets.Where(cb => cb > ob && openingBrackets.Count(x => x > ob && x < cb) - closingBrackets.Count(x => x > ob && x < cb) == 0).First())).ToList();
+                }
+            }
+            return SolveBracket(term, bracketRanges, (0, term.Count-1));
+        }
+
+
+        private long SolveBracket(List<char> term, List<(int, int)> allBrackets, (int, int) bracket)
+        {
+            long val1 = 0;
+            for (var i = bracket.Item1 + 1; i < bracket.Item2; i++)
+            {
+                var subBracket = allBrackets.FirstOrDefault(x => x.Item1 == i);
+                if (subBracket == default && !char.IsDigit(term[i]))
+                    continue;
+
+                var val2 = subBracket == default ? (int)char.GetNumericValue(term[i]) : SolveBracket(term, allBrackets, subBracket);
+
+                val1 = i == bracket.Item1 + 1 || term[i - 1] == '+' ? val1 + val2 : val1 * val2;
+
+                if (subBracket != default)
+                    i = subBracket.Item2;
+                else
+                    i++;
+            }
+            return val1;
+        }
+
+        public long EvalatePartOne(string line, bool isPartTwo)
+        {
+            while (line.Contains("("))
+            {
+                int level = 0;
+                int rightParantesesIndex = 0;
+                int leftParantesesIndex = 0;
+                bool isLeftSet = false;
+                for (int i = line.IndexOf('('); i < line.Length; i++)
+                {
+                    char currentChar = line[i];
+                    if (currentChar == '(')
+                    {
+                        if (!isLeftSet)
+                        {
+                            leftParantesesIndex = i;
+                            isLeftSet = true;
+                        }
+
+                        level++;
+                    }
+                    if (currentChar == ')')
+                    {
+                        level--;
+                    }
+                    if (level == 0)
+                    {
+                        rightParantesesIndex = i;
+                        break;
+                    }
+                }
+
+                int phaseStartIndex = leftParantesesIndex + 1;
+                int phaseLenght = rightParantesesIndex - leftParantesesIndex - 1;
+                long phaseResult = EvalatePartOne(line.Substring(phaseStartIndex, phaseLenght), isPartTwo);
+                line = line.Substring(0, leftParantesesIndex) + phaseResult + line.Substring(rightParantesesIndex + 1);
+            }
+
+            if (isPartTwo)
+            {
+                string regex = @"(\d+) \+ (\d+)";
+                Regex rgx = new Regex(regex);
+                while (Regex.IsMatch(line, regex))
+                {
+                    Match m = Regex.Match(line, regex);
+                    long t1 = long.Parse(m.Groups[1].Value);
+                    long t2 = long.Parse(m.Groups[2].Value);
+                    line = rgx.Replace(line, $"{t1 + t2}", 1);
+                }
+            }
+
+            long counter = 0;
+            bool isFirst = true;
+            string[] operators = line.Trim().Split(" ");
+            for (int i = 0; i < operators.Length; i++)
+            {
+                string current = operators[i];
+                if (current == "+")
+                {
+                    counter += long.Parse(operators[i + 1]);
+                }
+                else if (current == "*")
+                {
+                    counter *= long.Parse(operators[i + 1]);
+                }
+                else
+                {
+                    if (isFirst)
+                    {
+                        counter = long.Parse(current);
+                        isFirst = false;
+                    }
+                }
+            }
+
+            return counter;
+        }
+        #endregion
     }
 }
