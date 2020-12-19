@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using static AdventOfCode.Services.AdventOfCode2020;
+using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Services.UnitTests
 {
@@ -522,6 +523,18 @@ namespace AdventOfCode.Services.UnitTests
             input = $"({input})";
             var term = input.Replace(" ", string.Empty).ToCharArray().ToList();
             Assert.AreEqual(result, _service.SolveTerm(term, true));
+        }
+        #endregion
+
+        #region Day 19
+        [Test]
+        [TestCase("0: 4 1 5;1: 2 3 | 3 2;2: 4 4 | 5 5;3: 4 5 | 5 4;4: \"a\";5: \"b", "ababbb;bababa;abbbab;aaabbb;aaaabbb", "0", 2)]
+        public void Day19_BuildRules(string ruleString, string text, string ruleID, int result)
+        {
+            var rules = ruleString.Split(";").Select(x => x.Split(':', StringSplitOptions.TrimEntries)).ToDictionary(x => x[0], x => x[1]);
+            var messages = text.Split(";").ToList();
+            var regex = new Regex("^" + _service.BuildRegex(rules, new Dictionary<string, string>(), ruleID) + "$");
+            Assert.AreEqual(result, messages.Count(regex.IsMatch));
         }
         #endregion
 

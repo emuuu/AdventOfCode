@@ -1344,5 +1344,45 @@ namespace AdventOfCode.Services
             return val1;
         }
         #endregion
+
+        #region Day 19
+        public (Dictionary<string, string>, List<string>) ConvertDay19Input(string inputPath)
+        {
+            var segments = File.ReadAllText(inputPath).Split("\r\n\r\n");
+            return (segments[0].Split("\r\n")
+                            .Select(x => x.Split(':', StringSplitOptions.TrimEntries))
+                            .ToDictionary(x => x[0], x => x[1]),
+                            segments[1].Split("\r\n").ToList());
+        }
+
+        public long Day19_PuzzleOne((Dictionary<string, string>, List<string>) input)
+        {
+            var processed = new Dictionary<string, string>();
+            var regex = new Regex("^" + BuildRegex(input.Item1, processed, "0") + "$");
+            return input.Item2.Count(regex.IsMatch);
+        }
+
+        public long Day19_PuzzleTwo((Dictionary<string, string>, List<string>) input)
+        {
+            var processed = new Dictionary<string, string>();
+            var regex = new Regex($@"^({BuildRegex(input.Item1, processed, "42")})+(?<open>{BuildRegex(input.Item1, processed, "42")})+(?<close-open>{BuildRegex(input.Item1, processed, "31")})+(?(open)(?!))$");
+            return input.Item2.Count(regex.IsMatch);
+        }
+
+        public string BuildRegex(Dictionary<string, string> rules, Dictionary<string, string> processed, string input)
+        {
+            if (processed.TryGetValue(input, out var s))
+                return s;
+
+            var orig = rules[input];
+            if (orig.StartsWith('\"'))
+                return processed[input] = orig.Replace("\"", "");
+
+            if (!orig.Contains("|"))
+                return processed[input] = string.Join("", orig.Split().Select(x=> BuildRegex(rules, processed, x)));
+
+            return processed[input] = $"({string.Join("", orig.Split().Select(x => x == "|" ? x : BuildRegex(rules, processed, x)))})";
+        }
+        #endregion
     }
 }
