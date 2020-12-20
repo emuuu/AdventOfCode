@@ -1275,12 +1275,12 @@ namespace AdventOfCode.Services
         #region Day 18
         public List<List<char>> ConvertDay18Input(string inputPath)
         {
-            return File.ReadAllLines(inputPath).Select(x=> $"({x})".Replace(" ", string.Empty).ToCharArray().ToList()).ToList();
+            return File.ReadAllLines(inputPath).Select(x => $"({x})".Replace(" ", string.Empty).ToCharArray().ToList()).ToList();
         }
 
         public long Day18_PuzzleOne(List<List<char>> input)
         {
-            return input.Select(x=> SolveTerm(x, false)).Sum();
+            return input.Select(x => SolveTerm(x, false)).Sum();
         }
 
         public long Day18_PuzzleTwo(List<List<char>> input)
@@ -1319,7 +1319,7 @@ namespace AdventOfCode.Services
                     bracketRanges = openingBrackets.Select(ob => (a: ob, b: closingBrackets.Where(cb => cb > ob && openingBrackets.Count(x => x > ob && x < cb) - closingBrackets.Count(x => x > ob && x < cb) == 0).First())).ToList();
                 }
             }
-            return SolveBracket(term, bracketRanges, (0, term.Count-1));
+            return SolveBracket(term, bracketRanges, (0, term.Count - 1));
         }
 
 
@@ -1379,10 +1379,329 @@ namespace AdventOfCode.Services
                 return processed[input] = orig.Replace("\"", "");
 
             if (!orig.Contains("|"))
-                return processed[input] = string.Join("", orig.Split().Select(x=> BuildRegex(rules, processed, x)));
+                return processed[input] = string.Join("", orig.Split().Select(x => BuildRegex(rules, processed, x)));
 
             return processed[input] = $"({string.Join("", orig.Split().Select(x => x == "|" ? x : BuildRegex(rules, processed, x)))})";
         }
         #endregion
+
+        #region Day 19
+        public List<Tile> ConvertDay20Input(string inputPath)
+        {
+            var segments = File.ReadAllText(inputPath).Replace("#", "1").Replace(".", "0").Split("\r\n\r\n");
+            return segments.Select(x => new Tile(x.Trim().Split("\r\n"))).ToList();
+        }
+
+        public long Day20_PuzzleOne(List<Tile> input)
+        {
+            return SolvePuzzle(input);
+        }
+
+        public long Day20_PuzzleTwo(List<Tile> input)
+        {
+            return default;
+        }
+
+        public long SolvePuzzle(List<Tile> tiles)
+        {
+            var puzzleDimension = (int)Math.Sqrt(tiles.Count);
+
+            var possibleCorners = tiles.SelectMany(x => CornerAlternatives(x, tiles)).ToList();
+            var borderAlternatives = new List<(List<Tile> UsedTiles, Tile[,] Puzzle)>();
+            for (var i = 0; i < possibleCorners.Count; i++)
+            {
+                var possibleCorner = possibleCorners[i];
+                var puzzle = new Tile[puzzleDimension, puzzleDimension];
+                puzzle[0, 0] = possibleCorner.Puzzle[0, 0];
+                puzzle[0, 1] = possibleCorner.Puzzle[0, 1];
+                puzzle[1, 0] = possibleCorner.Puzzle[1, 0];
+                puzzle[1, 1] = possibleCorner.Puzzle[1, 1];
+                possibleCorner.Puzzle = puzzle;
+
+                var alternatives = BorderAlternatives(puzzleDimension, possibleCorner);
+                if (alternatives != null)
+                    borderAlternatives.AddRange(alternatives);
+            }
+            var possibleResults = WalkLines(puzzleDimension, borderAlternatives);
+            var selectedResult = possibleResults.FirstOrDefault();
+            if (selectedResult == default) return default;
+            return selectedResult.Puzzle[0, 0].ID * selectedResult.Puzzle[0, puzzleDimension - 1].ID * selectedResult.Puzzle[puzzleDimension - 1, 0].ID * selectedResult.Puzzle[puzzleDimension - 1, puzzleDimension - 1].ID;
+        }
+
+        public List<(List<Tile> LeftTiles, Tile[,] Puzzle)> CornerAlternatives(Tile cornerTile, List<Tile> availableTiles)
+        {
+            var result = new List<(List<Tile> LeftTiles, Tile[,] Puzzle)>();
+            foreach (var combination in cornerTile.Combinations)
+            {
+                var botMatches = new List<Tile>();
+                foreach (var checkTile in availableTiles.Where(x => x.ID != cornerTile.ID))
+                {
+                    foreach (var checkTileCombination in checkTile.Combinations.Where(x => x.Top == combination.Bot))
+                    {
+                        botMatches.Add(new Tile
+                        {
+                            ID = checkTile.ID,
+                            SelectedCombination = checkTileCombination
+                        });
+                    }
+                }
+                if (botMatches.Count == 0)
+                    continue;
+
+                var rightMatches = new List<Tile>();
+                foreach (var checkTile in availableTiles.Where(x => x.ID != cornerTile.ID && !botMatches.Any(y => y.ID == x.ID)))
+                {
+                    foreach (var checkTileCombination in checkTile.Combinations.Where(x => x.Left == combination.Right))
+                    {
+                        rightMatches.Add(new Tile
+                        {
+                            ID = checkTile.ID,
+                            SelectedCombination = checkTileCombination
+                        });
+                    }
+                }
+                if (rightMatches.Count == 0)
+                    continue;
+
+                foreach (var botMatch in botMatches)
+                {
+                    foreach (var rightMatch in rightMatches)
+                    {
+                        if (availableTiles.Any(x => x.ID != cornerTile.ID && x.ID != botMatch.ID && x.ID != rightMatch.ID && x.Combinations.Any(y => y.Top == rightMatch.SelectedCombination.Bot && y.Left == botMatch.SelectedCombination.Right)))
+                        {
+                            result.Add((availableTiles.Where(x => x.ID != cornerTile.ID && x.ID != botMatch.ID && x.ID != rightMatch.ID).ToList(), new Tile[,] { { new Tile { ID = cornerTile.ID, SelectedCombination = combination }, rightMatch }, { botMatch, null } }));
+                        }
+                        /*
+                        foreach (var blockMatch in availableTiles.Where(x => x.ID != cornerTile.ID && x.ID != botMatch.ID && x.ID != rightMatch.ID ))
+                        {
+                            foreach(var blockCombination in blockMatch.Combinations)
+                            {
+                                if(blockCombination.Top == rightMatch.SelectedCombination.Bot && blockCombination.Left == botMatch.SelectedCombination.Right)
+                                {
+                                    blockMatch.SelectedCombination = blockCombination;
+                                    result.Add(new Tile[,] { { new Tile { ID = cornerTile.ID, SelectedCombination = combination }, rightMatch }, { botMatch, new Tile { ID = blockMatch.ID, SelectedCombination = blockCombination } } });
+                                }
+                                
+                            }
+                        }
+                        */
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<(List<Tile> LeftTiles, Tile[,] Puzzle)> BorderAlternatives(int puzzleDimension, (List<Tile> LeftTiles, Tile[,] Puzzle) corner)
+        {
+
+            if (corner.Puzzle[0, 0].ID == 1951 && corner.Puzzle[0, 1].ID == 2311 && corner.Puzzle[1, 0].ID == 2729)
+            {
+                var asdf = "";
+            }
+            var possibleAlternatives = new List<(List<Tile> LeftTiles, Tile[,] Puzzle)> { (new List<Tile>(corner.LeftTiles), (Tile[,])corner.Puzzle.Clone()) };
+            for (var i = 2; i < puzzleDimension; i++)
+            {
+                var newAlternatives = new List<(List<Tile> UsedTiles, Tile[,] Puzzle)>();
+                foreach (var possibleAlternative in possibleAlternatives)
+                {
+                    foreach (var possibleTile in possibleAlternative.LeftTiles)
+                    {
+                        foreach (var combination in possibleTile.Combinations)
+                        {
+                            if (combination.Left == possibleAlternative.Puzzle[0, i - 1].SelectedCombination.Right)
+                            {
+                                var matchTile = new Tile
+                                {
+                                    ID = possibleTile.ID,
+                                    SelectedCombination = combination
+                                };
+                                var alternative = (Tile[,])possibleAlternative.Puzzle.Clone();
+                                alternative[0, i] = matchTile;
+                                var leftTilesAlternative = (new List<Tile>(possibleAlternative.LeftTiles)).Where(x=>x.ID != matchTile.ID).ToList();
+                                newAlternatives.Add((leftTilesAlternative, alternative));
+                            }
+                        }
+                    }
+                }
+                if (newAlternatives.Count == 0)
+                    return default;
+                possibleAlternatives = newAlternatives;
+            }
+            for (var i = 2; i < puzzleDimension; i++)
+            {
+                var newAlternatives = new List<(List<Tile> UsedTiles, Tile[,] Puzzle)>();
+                foreach (var possibleAlternative in possibleAlternatives)
+                {
+                    foreach (var possibleTile in possibleAlternative.LeftTiles)
+                    {
+                        foreach (var combination in possibleTile.Combinations)
+                        {
+                            if (combination.Top == possibleAlternative.Puzzle[i - 1, 0].SelectedCombination.Bot)
+                            {
+                                possibleTile.SelectedCombination = combination;
+                                var alternative = (Tile[,])possibleAlternative.Puzzle.Clone();
+                                alternative[i, 0] = possibleTile;
+                                var leftTilesAlternative = new List<Tile>(possibleAlternative.LeftTiles);
+                                leftTilesAlternative.Remove(possibleTile);
+                                if (!newAlternatives.Any(x => x.Puzzle.Equals(alternative)))
+                                    newAlternatives.Add((leftTilesAlternative, alternative));
+                            }
+                        }
+                    }
+                }
+                if (newAlternatives.Count == 0)
+                    return default;
+                possibleAlternatives = newAlternatives;
+            }
+            return possibleAlternatives;
+        }
+
+        public List<(List<Tile> LeftTiles, Tile[,] Puzzle)> WalkLines(int puzzleDimension, List<(List<Tile> LeftTiles, Tile[,] Puzzle)> alternatives)
+        {
+            var possibleAlternatives = new List<(List<Tile> LeftTiles, Tile[,] Puzzle)>(alternatives);
+            for (var i = 1; i < puzzleDimension; i++)
+            {
+                for (var j = 1; j < puzzleDimension; j++)
+                {
+                    var newAlternatives = new List<(List<Tile> UsedTiles, Tile[,] Puzzle)>();
+                    foreach (var possibleAlternative in possibleAlternatives)
+                    {
+                        if (possibleAlternative.Puzzle[0, 0].ID == 1951 && possibleAlternative.Puzzle[0, 1].ID == 2311 && possibleAlternative.Puzzle[1, 0].ID == 2729)
+                        {
+                            var asdf = "";
+                        }
+                        foreach (var possibleTile in possibleAlternative.LeftTiles)
+                        {
+                            foreach (var combination in possibleTile.Combinations)
+                            {
+                                if (combination.Left == possibleAlternative.Puzzle[i, j - 1].SelectedCombination.Right && combination.Top == possibleAlternative.Puzzle[i - 1, j].SelectedCombination.Bot)
+                                {
+                                    possibleTile.SelectedCombination = combination;
+                                    var alternative = (Tile[,])possibleAlternative.Puzzle.Clone();
+                                    alternative[i, j] = possibleTile;
+                                    var usedTilesAlternative = new List<Tile>(possibleAlternative.LeftTiles);
+                                    usedTilesAlternative.Remove(possibleTile);
+                                    newAlternatives.Add((usedTilesAlternative, alternative));
+                                }
+                            }
+                        }
+                    }
+                    possibleAlternatives = newAlternatives;
+                }
+            }
+
+            return possibleAlternatives;
+        }
+        public class Tile
+        {
+            public Tile()
+            {
+
+            }
+
+            public Tile(IEnumerable<string> input)
+            {
+                ID = long.Parse(input.First().Replace("Tile ", "").Replace(":", ""));
+                var data = input.Skip(1).ToArray();
+                if (ID == 2473)
+                {
+                    var asd = "";
+                }
+
+                var dataBase = data.Select(x => x.ToArray()).ToArray();
+
+                Data = new char[data.Length, data.Length];
+                for (var i = 0; i < data.Length; ++i)
+                {
+                    for (var j = 0; j < data[i].Length; ++j)
+                    {
+                        Data[i, j] = data[i][j];
+                    }
+                }
+                var dimension = data.Length - 1;
+                Combinations = new HashSet<(int Top, int Right, int Bot, int Left)>();
+                for (var i = 0; i < 4; i++)
+                {
+                    var shiftArray = RotateData(i);
+                    var top = Convert.ToInt32(String.Join("", shiftArray.GetRow(0)), 2);
+                    var bot = Convert.ToInt32(String.Join("", shiftArray.GetRow(dimension)), 2);
+
+                    var topInvert = Convert.ToInt32(data[0].Reverse(), 2);
+                    var botInvert = Convert.ToInt32(String.Join("", shiftArray.GetRow(dimension)).Reverse(), 2);
+
+                    var leftSideInvert = String.Join("", shiftArray.GetColumn(0));
+                    var rightSideInvert = String.Join("", shiftArray.GetColumn(dimension));
+
+                    var left = Convert.ToInt32(leftSideInvert.Reverse(), 2);
+                    var leftInvert = Convert.ToInt32(leftSideInvert, 2);
+                    var right = Convert.ToInt32(rightSideInvert.Reverse(), 2);
+                    var rightInvert = Convert.ToInt32(rightSideInvert, 2);
+
+                    Combinations.Add((top, right, bot, left));
+                    Combinations.Add((bot, rightInvert, top, leftInvert));
+                    Combinations.Add((topInvert, left, botInvert, right));
+                    Combinations.Add((botInvert, leftInvert, topInvert, rightInvert));
+                }
+            }
+
+            public long ID { get; set; }
+
+            public (int Top, int Right, int Bot, int Left) SelectedCombination { get; set; }
+
+            public HashSet<(int Top, int Right, int Bot, int Left)> Combinations { get; set; }
+
+            public char[,] Data { get; set; }
+
+            public char[,] RotateData(int turns)
+            {
+                var result = (char[,])Data.Clone();
+                var length = (int)Math.Sqrt(Data.Length);
+                for (var n = 1; n <= turns; n++)
+                {
+                    char[,] ret = new char[length, length];
+
+                    for (int i = 0; i < length; ++i)
+                    {
+                        for (int j = 0; j < length; ++j)
+                        {
+                            ret[i, j] = result[length - j - 1, i];
+                        }
+                    }
+                    result = ret;
+                }
+                return result;
+            }
+            #endregion
+        }
+    }
+
+    public static class Extensions
+    {
+        public static string Reverse(this string s)
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse(charArray);
+            return new string(charArray);
+        }
+
+        public static IList<T> Clone<T>(this IList<T> listToClone) where T : ICloneable
+        {
+            return listToClone.Select(item => (T)item.Clone()).ToList();
+        }
+
+        public static char[] GetColumn(this char[,] matrix, int columnNumber)
+        {
+            return Enumerable.Range(0, matrix.GetLength(0))
+                    .Select(x => matrix[x, columnNumber])
+                    .ToArray();
+        }
+
+        public static char[] GetRow(this char[,] matrix, int rowNumber)
+        {
+            return Enumerable.Range(0, matrix.GetLength(1))
+                    .Select(x => matrix[rowNumber, x])
+                    .ToArray();
+        }
     }
 }
