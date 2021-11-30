@@ -12,21 +12,25 @@ namespace AdventOfCode.App
 {
     public class Application
     {
+        public readonly AdventOfCode2021 _advent2021Service;
         public readonly AdventOfCode2020 _advent2020Service;
         public readonly AdventOfCode2019 _advent2019Service;
 
         private List<KeyValuePair<string, MethodInfo>> _settingMethods;
         private List<MethodInfo> _adventMethods;
         private string _inputPath;
+        private string _sessionID;
         private int _year;
 
-        public Application(AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, IOptions<Settings> settings)
+        public Application(AdventOfCode2021 advent2021Service, AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, IOptions<Settings> settings)
         {
+            _advent2021Service = advent2021Service;
             _advent2020Service = advent2020Service;
             _advent2019Service = advent2019Service;
             _settingMethods = new List<KeyValuePair<string, MethodInfo>>();
             _adventMethods = new List<MethodInfo>();
             _inputPath = settings.Value.InputPath;
+            _sessionID = settings.Value.SessionID;
             _year = DateTime.Now.Year;
         }
 
@@ -53,6 +57,13 @@ namespace AdventOfCode.App
         [NotInMethodList]
         public void Run()
         {
+            if (string.IsNullOrEmpty(_sessionID))
+            {
+                Console.WriteLine("Insert your Advent of Code SessionID:");
+                _sessionID = ReadLineOrEsc();
+            }
+            Console.WriteLine("");
+            
             do
             {
                 Console.WriteLine("Select day:");
@@ -82,7 +93,7 @@ namespace AdventOfCode.App
                     }
                 }
             }
-            while (Console.ReadKey(true).Key != ConsoleKey.Escape);
+            while (true);
         }
 
         private void InitMethodlist()
@@ -96,6 +107,9 @@ namespace AdventOfCode.App
 
         private void GetTypeMethods(Object input)
         {
+            if (input == null)
+                return;
+
             var type = input.GetType();
             var methods = type.GetMethods().Where(x => x.DeclaringType == type);
 
@@ -156,6 +170,22 @@ namespace AdventOfCode.App
             {
                 Console.WriteLine("File not found! Input-Path remains:");
                 Console.WriteLine(_inputPath);
+            }
+        }
+
+        public void UpdateSessionID()
+        {
+            Console.WriteLine("Update SessionID temporarily:");
+            var tempSessionID = Console.ReadLine();
+            if (!string.IsNullOrEmpty(tempSessionID))
+            {
+                _sessionID = tempSessionID;
+                Console.WriteLine("Updated SessionID");
+            }
+            else
+            {
+                Console.WriteLine("Invalid input! SessionID remains:");
+                Console.WriteLine(_sessionID);
             }
         }
 

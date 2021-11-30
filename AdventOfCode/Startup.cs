@@ -13,9 +13,11 @@ namespace AdventOfCode
         public Startup()
         {
             var appSettings = "appsettings.json";
+            var appSecretSettings = "appsettings.secret.json";
 
             var builder = new ConfigurationBuilder()
                 .AddJsonFile(appSettings, optional: false, reloadOnChange: true)
+                .AddJsonFile(appSecretSettings, optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -29,6 +31,7 @@ namespace AdventOfCode
 
             services.AddScoped<AdventOfCode2019>();
             services.AddScoped<AdventOfCode2020>();
+            services.AddScoped<AdventOfCode2021>();
 
             services.AddTransient<Application>();
         }
