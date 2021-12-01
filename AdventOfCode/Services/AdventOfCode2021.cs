@@ -65,22 +65,49 @@ namespace AdventOfCode.Services
         }
 
         #region Day 01 
-        public int[] ConvertDay1Input(string inputPath)
+        public List<int> ConvertDay1Input(string inputPath)
         {
-            return File.ReadAllLines(inputPath).Select(x => int.Parse(x)).ToArray();
+            return File.ReadAllLines(inputPath).Select(x => int.Parse(x)).ToList();
         }
 
-        public int Day1_PuzzleOne(int[] input)
+        public int Day1_PuzzleOne(List<int> input)
         {
-            throw new NotImplementedException();
+            var filteredMeasurements = FilterMeasurements(input);
+            return filteredMeasurements.Count;
         }
 
-        public int Day1_PuzzleTwo(int[] input)
+        public int Day1_PuzzleTwo(List<int> input)
         {
-            throw new NotImplementedException();
+            var slidingWindows = CreateSlidingWindow(input);
+            var filteredMeasurements = FilterMeasurements(slidingWindows);
+            return filteredMeasurements.Count;
+        }
+
+        public List<int> FilterMeasurements(List<int> input)
+        {
+            var result = new List<int>();
+            for (var i = 1; i < input.Count; i++)
+            {
+                if (input[i] > input[i - 1])
+                {
+                    result.Add(input[i]);
+                }
+            }
+            return result;
+        }
+        public List<int> CreateSlidingWindow(List<int> input)
+        {
+            var result = new List<int>();
+            for (var i = 2; i < input.Count; i++)
+            {
+                result.Add(input.Skip(i - 2).Take(3).Sum());
+            }
+            return result;
         }
         #endregion
 
-        }
+
+
     }
+}
 
