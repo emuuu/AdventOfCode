@@ -106,6 +106,71 @@ namespace AdventOfCode.Services
         }
         #endregion
 
+        #region Day 02
+        public IEnumerable<string> ConvertDay2Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath);
+        }
+
+        public int Day2_PuzzleOne(IEnumerable<string> input)
+        {
+            var finalPosition = ProcessSubmarineCommands(input, false);
+            return finalPosition.X * finalPosition.Y;
+        }
+
+        public int Day2_PuzzleTwo(IEnumerable<string> input)
+        {
+            var finalPosition = ProcessSubmarineCommands(input, true);
+            return finalPosition.X * finalPosition.Y;
+        }
+
+        public (int X, int Y, int Aim) ProcessSubmarineCommands(IEnumerable<string> commands, bool aim)
+        {
+            var position =  (X: 0, Y: 0, Aim: 0);
+            foreach(var command in commands)
+            {
+                position = MoveSubmarine(position, command, aim);
+            }
+            return position;
+        }
+
+        public (int, int, int) MoveSubmarine((int X, int Y, int Aim) position, string command, bool aim)
+        {
+            if(int.TryParse(command.Split(' ').Last(), out int movementRange))
+            {
+                switch (command[0])
+                {
+                    case 'f':
+                        {
+                            position.X += movementRange;
+                            if (aim)
+                                position.Y += movementRange * position.Aim;
+                            break;
+                        }
+                    case 'u':
+                        {
+                            if (aim)
+                                position.Aim -= movementRange;
+                            else
+                                position.Y -= movementRange;
+
+                            break;
+                        }
+                    case 'd':
+                        {
+                            if (aim)
+                                position.Aim += movementRange;
+                            else
+                                position.Y += movementRange;
+
+                            break;
+                        }
+                }
+            }
+            return position;
+        }
+        #endregion
+
 
 
     }
