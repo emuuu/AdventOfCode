@@ -34,25 +34,23 @@ namespace AdventOfCode.Services.UnitTests
             var slidingWindows = _service.CreateSlidingWindow(input.ToList());
             Assert.AreEqual(result, _service.FilterMeasurements(slidingWindows).Count);
         }
-
         #endregion
 
         #region Day 02
         [Test]
         [TestCase(new string[] { "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" }, 150)]
-        public void Day01_ProcessSubmarineCommands(string[] input, int result)
+        public void Day02_ProcessSubmarineCommands(string[] input, int result)
         {
             var endPosition = _service.ProcessSubmarineCommands(input, false);
             Assert.AreEqual(result, endPosition.X * endPosition.Y);
         }
         [Test]
         [TestCase(new string[] { "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" }, 900)]
-        public void Day01_ProcessSubmarineCommandsWithAim(string[] input, int result)
+        public void Day02_ProcessSubmarineCommandsWithAim(string[] input, int result)
         {
             var endPosition = _service.ProcessSubmarineCommands(input, true);
             Assert.AreEqual(result, endPosition.X * endPosition.Y);
         }
-
         #endregion
     }
 }
