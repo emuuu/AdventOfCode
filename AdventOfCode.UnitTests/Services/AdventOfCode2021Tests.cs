@@ -52,5 +52,22 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, endPosition.X * endPosition.Y);
         }
         #endregion
+
+        #region Day 03
+        [Test]
+        [TestCase(new string[] { "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" }, 198)]
+        public void Day03_CalculatePowerConsumption(string[] input, int result)
+        {
+            var report = _service.CalculateGammaEpsilon(input);
+            Assert.AreEqual(result, report.Gamma * report.Epsilon);
+        }
+        [Test]
+        [TestCase(new string[] { "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" }, 230)]
+        public void Day03_CalculateLifeSupportRating(string[] input, int result)
+        {
+            var report = _service.CalculateOxygenCO2(input);
+            Assert.AreEqual(result, report.OxygenGeneratorRating * report.CO2ScrubberRating);
+        }
+        #endregion
     }
 }

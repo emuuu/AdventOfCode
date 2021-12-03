@@ -126,8 +126,8 @@ namespace AdventOfCode.Services
 
         public (int X, int Y, int Aim) ProcessSubmarineCommands(IEnumerable<string> commands, bool aim)
         {
-            var position =  (X: 0, Y: 0, Aim: 0);
-            foreach(var command in commands)
+            var position = (X: 0, Y: 0, Aim: 0);
+            foreach (var command in commands)
             {
                 position = MoveSubmarine(position, command, aim);
             }
@@ -136,7 +136,7 @@ namespace AdventOfCode.Services
 
         public (int, int, int) MoveSubmarine((int X, int Y, int Aim) position, string command, bool aim)
         {
-            if(int.TryParse(command.Split(' ').Last(), out int movementRange))
+            if (int.TryParse(command.Split(' ').Last(), out int movementRange))
             {
                 switch (command[0])
                 {
@@ -171,8 +171,70 @@ namespace AdventOfCode.Services
         }
         #endregion
 
+        #region Day 03
+        public IEnumerable<string> ConvertDay3Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath);
+        }
 
+        public int Day3_PuzzleOne(IEnumerable<string> input)
+        {
+            var report = CalculateGammaEpsilon(input);
+            return report.Gamma * report.Epsilon;
+        }
 
+        public int Day3_PuzzleTwo(IEnumerable<string> input)
+        {
+            var report = CalculateOxygenCO2(input);
+            return report.OxygenGeneratorRating * report.CO2ScrubberRating;
+        }
+
+        public (int Gamma, int Epsilon) CalculateGammaEpsilon(IEnumerable<string> input)
+        {
+            if (!input.Any())
+                return default;
+
+            var length = input.First().Length;
+            var gamma = 0;
+            var epsilon = 0;
+            for (var i = 0; i < length; i++)
+            {
+                var avg = input.Select(x => int.Parse(x[i].ToString())).Average();
+                gamma += (int)Math.Pow(2, length - 1 - i) * (avg > 0.5 ? 1 : 0);
+                epsilon += (int)Math.Pow(2, length - 1 - i) * (avg < 0.5 ? 1 : 0);
+            }
+            return (Gamma: gamma, Epsilon: epsilon);
+        }
+
+        public (int OxygenGeneratorRating, int CO2ScrubberRating) CalculateOxygenCO2(IEnumerable<string> input)
+        {
+            if (!input.Any())
+                return default;
+
+            var length = input.First().Length;
+
+            IEnumerable<string> oxygenReport = input.ToList();
+            IEnumerable<string> co2Report = input.ToList();
+            while (oxygenReport.Count() > 1 || co2Report.Count() > 1)
+            {
+                for (var i = 0; i < length; i++)
+                {
+                    if (oxygenReport.Count() > 1)
+                    {
+                        var oxygenAverage = oxygenReport.Select(x => int.Parse(x[i].ToString())).Average();
+                        oxygenReport = oxygenReport.Where(x => x[i] == (oxygenAverage >= 0.5 ? '1' : '0')).ToList();
+                    }
+
+                    if (co2Report.Count() > 1)
+                    {
+                        var co2Average = co2Report.Select(x => int.Parse(x[i].ToString())).Average();
+                        co2Report = co2Report.Where(x => x[i] == (co2Average >= 0.5 ? '0' : '1')).ToList();
+                    }
+                }
+            }
+            return (OxygenGeneratorRating: oxygenReport.First().BinaryToInt(), CO2ScrubberRating: co2Report.First().BinaryToInt());
+        }
+        #endregion
     }
 }
 
