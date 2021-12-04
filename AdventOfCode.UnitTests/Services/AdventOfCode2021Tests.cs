@@ -69,5 +69,62 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, report.OxygenGeneratorRating * report.CO2ScrubberRating);
         }
         #endregion
+
+        #region Day 04
+        [Test]
+        [TestCase(false, 4512)]
+        [TestCase(true, 1924)]
+        public void Day04_RunBingo( bool letSquidWin, int result)
+        {
+            var numbers = new int[] { 7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22, 18, 20, 8, 19, 3, 26, 1 };
+            var boards = new List<(int BoardID, List<List<int>> BoardNumbers)>
+            {
+                (BoardID: 1, BoardNumbers: new List<List<int>>
+                {
+                    new List<int>{ 22, 13, 17, 11, 0 },
+                    new List<int>{ 8, 2, 23, 4, 24 },
+                    new List<int>{ 21, 9, 14, 16, 7 },
+                    new List<int>{ 6, 10, 3, 18, 5 },
+                    new List<int>{ 1, 12, 20, 15, 19 },
+                    new List<int>{ 22, 8, 21, 6, 1 },
+                    new List<int>{ 13, 2, 9, 10, 12 },
+                    new List<int>{ 17, 23, 14, 3, 20 },
+                    new List<int>{ 11, 4, 16, 18, 15 },
+                    new List<int>{ 0, 24, 7, 5, 19 }
+                }),
+                (BoardID: 2, BoardNumbers: new List<List<int>>
+                {
+                    new List<int>{ 3, 15, 0, 2, 22 },
+                    new List<int>{ 9, 18, 13, 17, 5 },
+                    new List<int>{ 19, 8, 7, 25, 23 },
+                    new List<int>{ 20, 11, 10, 24, 4 },
+                    new List<int>{ 14, 21, 16, 12, 6 },
+                    new List<int>{ 3, 9, 19, 20, 14 },
+                    new List<int>{ 15, 18, 8, 11, 21 },
+                    new List<int>{ 0, 13, 7, 10, 16 },
+                    new List<int>{ 2, 17, 25, 24, 12 },
+                    new List<int>{ 22, 5, 23, 4, 6 }
+                }),
+                (BoardID: 3, BoardNumbers: new List<List<int>>
+                {
+                    new List<int>{ 14, 21, 17, 24, 4 },
+                    new List<int>{ 10, 16, 15, 9, 19 },
+                    new List<int>{ 18, 8, 23, 26, 20 },
+                    new List<int>{ 22, 11, 13, 6, 5 },
+                    new List<int>{ 2, 0, 12, 3, 7},
+                    new List<int>{ 14, 10, 18, 22, 2 },
+                    new List<int>{ 21, 16, 8, 11, 0 },
+                    new List<int>{ 17, 15, 23, 13, 12 },
+                    new List<int>{ 24, 9, 26, 6, 3 },
+                    new List<int>{ 4, 19, 20, 5, 7 }
+                })
+            };
+
+            ;
+            Assert.AreEqual(result, _service.RunBingoGame(numbers, boards, letSquidWin));
+        }
+
+
+        #endregion
     }
 }

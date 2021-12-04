@@ -235,6 +235,56 @@ namespace AdventOfCode.Services
             return (OxygenGeneratorRating: oxygenReport.First().BinaryToInt(), CO2ScrubberRating: co2Report.First().BinaryToInt());
         }
         #endregion
+
+        #region Day 04
+        public (List<int> Numbers, List<(int BoardID, List<List<int>> BoardNumbers)> Boards) ConvertDay4Input(string inputPath)
+        {
+            var lines = File.ReadAllLines(inputPath).ToList();
+            var chosenNumbers = lines.First().Split(',').Select(x => int.Parse(x)).ToList();
+            lines = lines.Skip(1).ToList();
+
+            var boards = new List<(int BoardID, List<List<int>> BoardNumbers)>();
+            for(var i = 0; i < lines.Count / 6; i++)
+            {
+                var horizontal = lines.Skip(i * 6 + 1).Take(5).Select(x => Enumerable.Range(0, 5).Select(y => int.Parse(new String(x.Skip(3 * y).Take(2).ToArray()))).ToList()).ToList();
+                var vertical = Enumerable.Range(0, 5).Select(x => horizontal.Select(y => y[x]).ToList()).ToList();
+                boards.Add((BoardID: i+1, BoardNumbers: horizontal.Concat(vertical).ToList()));
+            }
+            return (chosenNumbers, boards);
+        }
+
+        public int Day4_PuzzleOne((List<int> Numbers, List<(int BoardID, List<List<int>> BoardNumbers)> Boards) input)
+        {
+            return RunBingoGame(input.Numbers, input.Boards, false);
+        }
+
+        public int Day4_PuzzleTwo((List<int> Numbers, List<(int BoardID, List<List<int>> BoardNumbers)> Boards) input)
+        {
+            return RunBingoGame(input.Numbers, input.Boards, true);
+        }
+
+        public int RunBingoGame(IEnumerable<int> chosenNumbers, List<(int BoardID, List<List<int>> BoardNumbers)> boards, bool letSquidWin)
+        {
+            foreach (var number in chosenNumbers)
+            {
+                boards.ForEach(x => x.BoardNumbers.ForEach(y => y.RemoveAll(z => z == number)));
+                if (boards.Any(x => x.BoardNumbers.Any(y => y.Count == 0)))
+                {
+                    var winnerBoard = boards.First(x => x.BoardNumbers.Any(y => y.Count == 0));
+
+                    if (letSquidWin)
+                    {
+                        boards.RemoveAll(x => boards.Where(y => y.BoardNumbers.Any(z => z.Count == 0)).Select(y => y.BoardID).Contains(x.BoardID));
+                    }
+                    if (!letSquidWin || boards.Count == 0)
+                    {
+                        return winnerBoard.BoardNumbers.SelectMany(x => x).Sum() / 2 * number;
+                    }
+                }
+            }
+            return default;
+        }
+        #endregion
     }
 }
 
