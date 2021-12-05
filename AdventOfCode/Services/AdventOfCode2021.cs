@@ -244,11 +244,11 @@ namespace AdventOfCode.Services
             lines = lines.Skip(1).ToList();
 
             var boards = new List<(int BoardID, List<List<int>> BoardNumbers)>();
-            for(var i = 0; i < lines.Count / 6; i++)
+            for (var i = 0; i < lines.Count / 6; i++)
             {
                 var horizontal = lines.Skip(i * 6 + 1).Take(5).Select(x => Enumerable.Range(0, 5).Select(y => int.Parse(new String(x.Skip(3 * y).Take(2).ToArray()))).ToList()).ToList();
                 var vertical = Enumerable.Range(0, 5).Select(x => horizontal.Select(y => y[x]).ToList()).ToList();
-                boards.Add((BoardID: i+1, BoardNumbers: horizontal.Concat(vertical).ToList()));
+                boards.Add((BoardID: i + 1, BoardNumbers: horizontal.Concat(vertical).ToList()));
             }
             return (chosenNumbers, boards);
         }
@@ -283,6 +283,54 @@ namespace AdventOfCode.Services
                 }
             }
             return default;
+        }
+        #endregion
+
+        #region Day 05
+        public List<(int x1, int y1, int x2, int y2)> ConvertDay5Input(string inputPath)
+        {
+            return ReadPoints(File.ReadAllLines(inputPath));
+        }
+
+        public int Day5_PuzzleOne(List<(int x1, int y1, int x2, int y2)> lines)
+        {
+            return IntersectLines(lines, false);
+        }
+
+        public int Day5_PuzzleTwo(List<(int x1, int y1, int x2, int y2)> lines)
+        {
+            return IntersectLines(lines, true);
+        }
+
+
+        public List<(int x1, int y1, int x2, int y2)> ReadPoints(IEnumerable<string> input)
+        {
+            return input.Select(x => x.Split(" -> ")).Select(y => (x1: int.Parse(y[0].Split(',')[0]), y1: int.Parse(y[0].Split(',')[1]), x2: int.Parse(y[1].Split(',')[0]), y2: int.Parse(y[1].Split(',')[1]))).ToList();
+
+        }
+        public int IntersectLines(List<(int x1, int y1, int x2, int y2)> lines, bool diagonals)
+        {
+            var map = new Dictionary<(int x, int y), int>();
+            foreach (var line in lines)
+            {
+                if (diagonals || line.x2 == line.x1 || line.y1 == line.y2)
+                {
+                    var stepx = line.x1 == line.x2 ? 0 : (line.x1 < line.x2 ? 1 : -1);
+                    var endx = line.x2 + (stepx == 0 ? 1 : stepx);
+
+                    var stepy = line.y1 == line.y2 ? 0 : (line.y1 < line.y2 ? 1 : -1);
+                    var endy = line.y2 + (stepy == 0 ? 1 : stepy);
+
+                    for (int x = line.x1, y = line.y1; x != endx && y != endy; x += stepx, y += stepy)
+                    {
+                        var pos = (x, y);
+                        map.TryGetValue((x, y), out var value);
+                        map[pos] = value + 1;
+                    }
+                }
+            }
+
+            return map.Count(x => x.Value > 1);
         }
         #endregion
     }

@@ -123,8 +123,31 @@ namespace AdventOfCode.Services.UnitTests
             ;
             Assert.AreEqual(result, _service.RunBingoGame(numbers, boards, letSquidWin));
         }
+        #endregion
 
-
+        #region Day 05
+        [Test]
+        [TestCase(false, 5)]
+        [TestCase(true, 12)]
+        public void Day05_IntersectLines(bool useDiagonals, int result)
+        {
+            var testInput = new List<string>
+            {
+                "0,9 -> 5,9",
+                "8,0 -> 0,8",
+                "9,4 -> 3,4",
+                "2,2 -> 2,1",
+                "7,0 -> 7,4",
+                "6,4 -> 2,0",
+                "0,9 -> 2,9",
+                "3,4 -> 1,4",
+                "0,0 -> 8,8",
+                "5,5 -> 8,2"
+            };
+            var lines = _service.ReadPoints(testInput);
+            ;
+            Assert.AreEqual(result, _service.IntersectLines(lines, useDiagonals));
+        }
         #endregion
     }
 }
