@@ -333,6 +333,41 @@ namespace AdventOfCode.Services
             return map.Count(x => x.Value > 1);
         }
         #endregion
+
+        #region Day 06
+        public List<long> ConvertDay6Input(string inputPath)
+        {
+            var fishMaturity = new List<long>();
+            var fishAges = File.ReadAllText(inputPath).Split(',').Select(x => long.Parse(x));
+            for (var i = 0; i <= 8; i++)
+            {
+                fishMaturity.Add(fishAges.Count(x => x == i));
+            }
+            return fishMaturity;
+        }
+
+        public long Day6_PuzzleOne(List<long> fishMaturity)
+        {
+            return ModelLanternFishPopulation(80, fishMaturity);
+        }
+
+        public long Day6_PuzzleTwo(List<long> fishMaturity)
+        {
+            return ModelLanternFishPopulation(256, fishMaturity);
+        }
+
+        public long ModelLanternFishPopulation(int days, List<long> fishMaturity)
+        {
+            for(var i = 0 ;i < days; i++)
+            {
+                fishMaturity[7] += fishMaturity[0];
+                fishMaturity.Add(fishMaturity[0]);
+                fishMaturity.RemoveAt(0);
+            }
+
+            return fishMaturity.Sum();
+        }
+        #endregion
     }
 }
 

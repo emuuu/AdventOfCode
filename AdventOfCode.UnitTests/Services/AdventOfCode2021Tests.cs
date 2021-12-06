@@ -149,5 +149,35 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, _service.IntersectLines(lines, useDiagonals));
         }
         #endregion
+
+        #region Day 06
+        [Test]
+        [TestCase(0, 5)]
+        [TestCase(1, 5)]
+        [TestCase(2, 6)]
+        [TestCase(3, 7)]
+        [TestCase(4, 9)]
+        [TestCase(5, 10)]
+        [TestCase(6, 10)]
+        [TestCase(7, 10)]
+        [TestCase(8, 10)]
+        [TestCase(9, 11)]
+        [TestCase(10, 12)]
+        [TestCase(11, 15)]
+        [TestCase(12, 17)]
+        [TestCase(13, 19)]
+        [TestCase(14, 20)]
+        [TestCase(15, 20)]
+        [TestCase(16, 21)]
+        [TestCase(17, 22)]
+        [TestCase(18, 26)]
+        [TestCase(80, 5934)]
+        [TestCase(256, 26984457539)]
+        public void Day06_ModelLaternfishPouplation(int days, int[] fishAges, long fishNumber)
+        {
+            var fishMaturity = new List<long>() { 0, 1, 1, 2, 1, 0, 0, 0, 0 };
+            Assert.AreEqual(fishNumber, _service.ModelLanternFishPopulation(days, fishMaturity));
+        }
+        #endregion
     }
 }
