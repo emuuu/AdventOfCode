@@ -405,9 +405,9 @@ namespace AdventOfCode.Services
 
 
 
-        public int CalculateFuelConsumption(int targetPosition, IEnumerable<int> positions, bool useExtendedFuelConsumption)
+        public int CalculateFuelConsumption(int targetPosition, IEnumerable<int> positions, bool useGauss)
         {
-            var positionRelatedFuelConsumption = positions.Distinct().ToDictionary(x => x, x => useExtendedFuelConsumption ? Enumerable.Range(1, Math.Abs(targetPosition - x)).Aggregate(0, (p, consumption) => p + consumption) :  Math.Abs(targetPosition - x));
+            var positionRelatedFuelConsumption = positions.Distinct().ToDictionary(x => x, x => useGauss ? (int)(Math.Pow(Math.Abs(targetPosition - x),2)+ Math.Abs(targetPosition - x)) / 2 :  Math.Abs(targetPosition - x));
             return positions.Sum(x=>positionRelatedFuelConsumption[x]);
         }
 

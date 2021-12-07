@@ -198,9 +198,9 @@ namespace AdventOfCode.Services.UnitTests
         [Test]
         [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 2, false, 37)]
         [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 5, true, 168)]
-        public void Day07_CalculateFuelConsumption(int[] input, int targetPosition, bool useExtendedFuelConsumption, int fuelConsumption)
+        public void Day07_CalculateFuelConsumption(int[] input, int targetPosition, bool useGauss, int fuelConsumption)
         {
-            Assert.AreEqual(fuelConsumption, _service.CalculateFuelConsumption(targetPosition, input, useExtendedFuelConsumption));
+            Assert.AreEqual(fuelConsumption, _service.CalculateFuelConsumption(targetPosition, input, useGauss));
         }
         #endregion
     }
