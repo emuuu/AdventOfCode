@@ -358,7 +358,7 @@ namespace AdventOfCode.Services
 
         public long ModelLanternFishPopulation(int days, List<long> fishMaturity)
         {
-            for(var i = 0 ;i < days; i++)
+            for (var i = 0; i < days; i++)
             {
                 fishMaturity[7] += fishMaturity[0];
                 fishMaturity.Add(fishMaturity[0]);
@@ -367,6 +367,50 @@ namespace AdventOfCode.Services
 
             return fishMaturity.Sum();
         }
+        #endregion
+
+        #region Day 07
+        public List<int> ConvertDay7Input(string inputPath)
+        {
+            return File.ReadAllText(inputPath).Split(',').Select(x=>int.Parse(x)).ToList();
+        }
+
+        public int Day7_PuzzleOne(List<int> crabPositions)
+        {
+            var geometricMean = CalculateGeometricMean(crabPositions);
+            return CalculateFuelConsumption(geometricMean, crabPositions, false);
+        }
+
+        public int Day7_PuzzleTwo(List<int> crabPositions)
+        {
+            var centerOfMass = CalculateCenterOfMass(crabPositions);
+            return CalculateFuelConsumption(centerOfMass, crabPositions, true);
+        }
+
+
+        public int CalculateGeometricMean(IEnumerable<int> input)
+        {
+            var sortedInput = input.ToArray();
+            Array.Sort(sortedInput);
+
+            int size = sortedInput.Length;
+            int mid = size / 2;
+            return (size % 2 != 0) ? sortedInput[mid] : (sortedInput[mid] + sortedInput[mid - 1]) / 2;
+        }
+        public int CalculateCenterOfMass(IEnumerable<int> input)
+        {
+            var massPoints = input.Distinct().ToDictionary(x => x, x => input.Count(y => y == x));
+            return massPoints.Sum(x => x.Key * x.Value) / massPoints.Sum(x => x.Value);
+        }
+
+
+
+        public int CalculateFuelConsumption(int targetPosition, IEnumerable<int> positions, bool useExtendedFuelConsumption)
+        {
+            var positionRelatedFuelConsumption = positions.Distinct().ToDictionary(x => x, x => useExtendedFuelConsumption ? Enumerable.Range(1, Math.Abs(targetPosition - x)).Aggregate(0, (p, consumption) => p + consumption) :  Math.Abs(targetPosition - x));
+            return positions.Sum(x=>positionRelatedFuelConsumption[x]);
+        }
+
         #endregion
     }
 }

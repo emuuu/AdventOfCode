@@ -173,10 +173,34 @@ namespace AdventOfCode.Services.UnitTests
         [TestCase(18, 26)]
         [TestCase(80, 5934)]
         [TestCase(256, 26984457539)]
-        public void Day06_ModelLaternfishPouplation(int days, int[] fishAges, long fishNumber)
+        public void Day06_ModelLaternfishPouplation(int days, long fishNumber)
         {
             var fishMaturity = new List<long>() { 0, 1, 1, 2, 1, 0, 0, 0, 0 };
             Assert.AreEqual(fishNumber, _service.ModelLanternFishPopulation(days, fishMaturity));
+        }
+        #endregion
+
+        #region Day 07
+        [Test]
+        [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 2)]
+        public void Day07_CalculateGeometricMean(int[] input, int median)
+        {
+            Assert.AreEqual(median, _service.CalculateGeometricMean(input));
+        }
+
+        [Test]
+        [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 5)]
+        public void Day07_CalculateCenterOfMass(int[] input, int median)
+        {
+            Assert.AreEqual(median, _service.CalculateCenterOfMass(input));
+        }
+
+        [Test]
+        [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 2, false, 37)]
+        [TestCase(new int[] { 16, 1, 2, 0, 4, 2, 7, 1, 2, 14 }, 5, true, 168)]
+        public void Day07_CalculateFuelConsumption(int[] input, int targetPosition, bool useExtendedFuelConsumption, int fuelConsumption)
+        {
+            Assert.AreEqual(fuelConsumption, _service.CalculateFuelConsumption(targetPosition, input, useExtendedFuelConsumption));
         }
         #endregion
     }
