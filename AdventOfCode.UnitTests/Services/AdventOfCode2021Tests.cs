@@ -203,5 +203,26 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(fuelConsumption, _service.CalculateFuelConsumption(targetPosition, input, useGauss));
         }
         #endregion
+
+        #region Day 08
+        [Test]
+        [TestCase(new string[] { "acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab" }, new string[] { "cdfeb", "fcadb", "cdfeb", "cdbaf" }, 5353)]
+        [TestCase(new string[] { "be", "cfbegad", "cbdgef", "fgaecd", "cgeb", "fdcge", "agebfd", "fecdb", "fabcd", "edb" }, new string[] { "fdgacbe", "cefdb", "cefbgd", "gcbe" }, 8394)]
+        [TestCase(new string[] { "edbfga", "begcd", "cbg", "gc", "gcadebf", "fbgde", "acbgfd", "abcde", "gfcbed", "gfec" }, new string[] { "fcgedb", "cgb", "dgebacf", "gc" }, 9781)]
+        [TestCase(new string[] { "fgaebd", "cg", "bdaec", "gdafb", "agbcfd", "gdcbef", "bgcad", "gfac", "gcb", "cdgabef" }, new string[] { "cg", "cg", "fdcagb", "cbg" }, 1197)]
+        [TestCase(new string[] { "fbegcd", "cbd", "adcefb", "dageb", "afcb", "bc", "aefdc", "ecdab", "fgdeca", "fcdbega" }, new string[] { "efabcd", "cedba", "gadfec", "cb" }, 9361)]
+        [TestCase(new string[] { "aecbfdg", "fbg", "gf", "bafeg", "dbefa", "fcge", "gcbea", "fcaegb", "dgceab", "fcbdga" }, new string[] { "gecf", "egdcabf", "bgf", "bfgea" }, 4873)]
+        [TestCase(new string[] { "fgeab", "ca", "afcebg", "bdacfeg", "cfaedg", "gcfdb", "baec", "bfadeg", "bafgc", "acf" }, new string[] { "gebdcfa", "ecba", "ca", "fadegcb" }, 8418)]
+        [TestCase(new string[] { "dbcfg", "fgd", "bdegcaf", "fgec", "aegbdf", "ecdfab", "fbedc", "dacgb", "gdcebf", "gf" }, new string[] { "cefg", "dcbef", "fcge", "gbcadfe" }, 4548)]
+        [TestCase(new string[] { "bdfegc", "cbegaf", "gecbf", "dfcage", "bdacg", "ed", "bedf", "ced", "adcbefg", "gebcd" }, new string[] { "ed", "bcgafe", "cdgba", "cbgef" }, 1625)]
+        [TestCase(new string[] { "egadfb", "cdbfeg", "cegd", "fecab", "cgb", "gbdefca", "cg", "fgcdab", "egfdb", "bfceg" }, new string[] { "gbdfcae", "bgc", "cg", "cgb" }, 8717)]
+        [TestCase(new string[] { "gcafb", "gcf", "dcaebfg", "ecagb", "gf", "abcdeg", "gaef", "cafbge", "fdbac", "fegbdc" }, new string[] { "fgae", "cfgab", "fg", "bagce" }, 4315)]
+        public void Day08_MapSegments(string[] inputDigits, string[] outputDigits, int outputValue)
+        {
+            var sortedInput = inputDigits.Select(x => String.Concat(x.OrderBy(y => y))).ToList();
+            var sortedOutput = outputDigits.Select(x => String.Concat(x.OrderBy(y => y))).ToList();
+            Assert.AreEqual(outputValue, _service.CalculateOutputDigits(sortedOutput.ToList(), _service.MapSegments(sortedInput.Union(sortedOutput))));
+        }
+        #endregion
     }
 }

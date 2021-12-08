@@ -372,7 +372,7 @@ namespace AdventOfCode.Services
         #region Day 07
         public List<int> ConvertDay7Input(string inputPath)
         {
-            return File.ReadAllText(inputPath).Split(',').Select(x=>int.Parse(x)).ToList();
+            return File.ReadAllText(inputPath).Split(',').Select(x => int.Parse(x)).ToList();
         }
 
         public int Day7_PuzzleOne(List<int> crabPositions)
@@ -407,10 +407,60 @@ namespace AdventOfCode.Services
 
         public int CalculateFuelConsumption(int targetPosition, IEnumerable<int> positions, bool useGauss)
         {
-            var positionRelatedFuelConsumption = positions.Distinct().ToDictionary(x => x, x => useGauss ? (int)(Math.Pow(Math.Abs(targetPosition - x),2)+ Math.Abs(targetPosition - x)) / 2 :  Math.Abs(targetPosition - x));
-            return positions.Sum(x=>positionRelatedFuelConsumption[x]);
+            var positionRelatedFuelConsumption = positions.Distinct().ToDictionary(x => x, x => useGauss ? (int)(Math.Pow(Math.Abs(targetPosition - x), 2) + Math.Abs(targetPosition - x)) / 2 : Math.Abs(targetPosition - x));
+            return positions.Sum(x => positionRelatedFuelConsumption[x]);
         }
 
+        #endregion
+
+        #region Day 08
+        public List<(List<string> InputValues, List<string> OutputValues)> ConvertDay8Input(string inputPath)
+        {
+            var input = File.ReadAllLines(inputPath).Select(x=> (InputValues: x.Split(" | ")[0].Split(' ').ToList(), OutputValues: x.Split(" | ")[1].Split(' ').ToList())).ToList();
+            return  input.Select(x => (InputValues: x.InputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList(), OutputValues: x.OutputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList())).ToList();
+        }
+
+        public int Day8_PuzzleOne(List<(List<string> InputValues, List<string> OutputValues)> input)
+        {
+            return input.Sum(x => x.OutputValues.Count(y => y.Length == 2 || y.Length == 3 || y.Length == 4 || y.Length == 7));
+        }
+
+        public int Day8_PuzzleTwo(List<(List<string> InputValues, List<string> OutputValues)> input)
+        {
+            var result = default(int);
+            foreach (var inputSet in input)
+            {
+                result += CalculateOutputDigits(inputSet.OutputValues, MapSegments(inputSet.InputValues.Union(inputSet.OutputValues)));
+            }
+            return result;
+        }
+
+        public int CalculateOutputDigits(List<string> digitSet, Dictionary<int, string> mapping)
+        {
+            var outputDigit = default(int);
+            for (var i = 0; i < digitSet.Count; i++)
+            {
+                outputDigit += (int)Math.Pow(10, digitSet.Count - i - 1) * mapping.First(x => x.Value == digitSet[i]).Key;
+            }
+            return outputDigit;
+        }
+
+        public Dictionary<int, string> MapSegments(IEnumerable<string> digitSet)
+        {
+            var mapping = new Dictionary<int, string>();
+            mapping.Add(1, digitSet.First(x => x.Length == 2));
+            mapping.Add(4, digitSet.First(x => x.Length == 4));
+            mapping.Add(7, digitSet.First(x => x.Length == 3));
+            mapping.Add(8, digitSet.First(x => x.Length == 7));
+            mapping.Add(9, digitSet.First(x => x.Length == 6 && !mapping[4].Any(y => !x.Contains(y))));
+            mapping.Add(0, digitSet.First(x => x.Length == 6 && x != mapping[9] && !mapping[7].Any(y => !x.Contains(y))));
+            mapping.Add(6, digitSet.First(x => x.Length == 6 && x != mapping[0] && x != mapping[9]));
+            mapping.Add(3, digitSet.First(x => x.Length == 5 && !mapping[1].Any(y => !x.Contains(y))));
+            var cSegment = mapping[3].First(x => !mapping[6].Contains(x));
+            mapping.Add(5, digitSet.First(x => x.Length == 5 && x != mapping[3] && !x.Contains(cSegment)));
+            mapping.Add(2, digitSet.First(x => x.Length == 5 && x != mapping[3] && x.Contains(cSegment)));
+            return mapping;
+        }
         #endregion
     }
 }
