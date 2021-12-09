@@ -224,5 +224,25 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(outputValue, _service.CalculateOutputDigits(sortedOutput.ToList(), _service.MapSegments(sortedInput.Union(sortedOutput))));
         }
         #endregion
+
+        #region Day 09
+        [Test]
+        [TestCase(new string[] { "2199943210", "3987894921", "9856789892", "8767896789", "9899965678" }, 15)]
+        public void Day09_FindLowPoints(string[] input, int result)
+        {
+            var map = input.SelectMany((line, y) => line.Select((value, x) => (x: x, y: y, height: int.Parse(value.ToString())))).ToList();
+            var lowPoints = _service.FindLowPoints(map);
+            Assert.AreEqual(result, lowPoints.Sum(point => point.height) + lowPoints.Count);
+        }
+        [Test]
+        [TestCase(new string[] { "2199943210", "3987894921", "9856789892", "8767896789", "9899965678" }, 1134)]
+        public void Day09_FindLargestBasins(string[] input, int result)
+        {
+            var map = input.SelectMany((line, y) => line.Select((value, x) => (x: x, y: y, height: int.Parse(value.ToString())))).ToList();
+            var lowPoints = _service.FindLowPoints(map);
+            var basins = _service.FindBasins(lowPoints, map).Take(3);
+            Assert.AreEqual(result, basins.Aggregate(1, (total, next) => total * next.Count));
+        }
+        #endregion
     }
 }

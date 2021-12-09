@@ -416,8 +416,8 @@ namespace AdventOfCode.Services
         #region Day 08
         public List<(List<string> InputValues, List<string> OutputValues)> ConvertDay8Input(string inputPath)
         {
-            var input = File.ReadAllLines(inputPath).Select(x=> (InputValues: x.Split(" | ")[0].Split(' ').ToList(), OutputValues: x.Split(" | ")[1].Split(' ').ToList())).ToList();
-            return  input.Select(x => (InputValues: x.InputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList(), OutputValues: x.OutputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList())).ToList();
+            var input = File.ReadAllLines(inputPath).Select(x => (InputValues: x.Split(" | ")[0].Split(' ').ToList(), OutputValues: x.Split(" | ")[1].Split(' ').ToList())).ToList();
+            return input.Select(x => (InputValues: x.InputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList(), OutputValues: x.OutputValues.Select(x => String.Concat(x.OrderBy(y => y))).ToList())).ToList();
         }
 
         public int Day8_PuzzleOne(List<(List<string> InputValues, List<string> OutputValues)> input)
@@ -460,6 +460,113 @@ namespace AdventOfCode.Services
             mapping.Add(5, digitSet.First(x => x.Length == 5 && x != mapping[3] && !x.Contains(cSegment)));
             mapping.Add(2, digitSet.First(x => x.Length == 5 && x != mapping[3] && x.Contains(cSegment)));
             return mapping;
+        }
+        #endregion
+
+        #region Day 09
+        public List<(int x, int y, int height)> ConvertDay9Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).SelectMany((line, y) => line.Select((value, x) => (x: x, y: y, height: int.Parse(value.ToString())))).ToList();
+        }
+
+        public int Day9_PuzzleOne(List<(int x, int y, int height)> input)
+        {
+            var lowPoints = FindLowPoints(input);
+            return lowPoints.Sum(point => point.height) + lowPoints.Count;
+        }
+
+        public int Day9_PuzzleTwo(List<(int x, int y, int height)> input)
+        {
+            var lowPoints = FindLowPoints(input);
+            var basins = FindBasins(lowPoints, input).Take(3);
+            return basins.Aggregate(1, (total, next) => total * next.Count);
+        }
+
+        public List<(int x, int y, int height)> FindLowPoints(List<(int x, int y, int height)> map)
+        {
+            var filteredMap = map.ToList();
+            var xMax = map.Max(coord => coord.x);
+            var yMax = map.Max(coord => coord.y);
+            for (var i = 0; i < filteredMap.Count; i++)
+            {
+                var point = filteredMap[i];
+                var upPoint = map.FirstOrDefault(coord => coord.x == point.x && coord.y == point.y - 1);
+                if (upPoint.height > point.height)
+                {
+                    filteredMap.Remove(upPoint);
+                }
+
+                var downPoint = map.FirstOrDefault(coord => coord.x == point.x && coord.y == point.y + 1);
+                if (downPoint.height > point.height)
+                {
+                    filteredMap.Remove(downPoint);
+                }
+
+                var leftPoint = map.FirstOrDefault(coord => coord.x == point.x - 1 && coord.y == point.y);
+                if (leftPoint.height > point.height)
+                {
+                    filteredMap.Remove(leftPoint);
+                }
+
+                var rightPoint = map.FirstOrDefault(coord => coord.x == point.x + 1 && coord.y == point.y);
+                if (rightPoint.height > point.height)
+                {
+                    filteredMap.Remove(rightPoint);
+                }
+
+                if ((upPoint.height <= point.height && point.y != 0) || (downPoint.height <= point.height && point.y != yMax) || (leftPoint.height <= point.height && point.x != 0) || (rightPoint.height <= point.height && point.x != xMax))
+                {
+                    filteredMap.Remove(point);
+                    i--;
+                }
+            }
+            return filteredMap;
+        }
+
+        public List<List<(int x, int y, int height)>> FindBasins(List<(int x, int y, int height)> lowPoints, List<(int x, int y, int height)> map)
+        {
+            var basins = new List<List<(int x, int y, int height)>>();
+
+            foreach (var lowPoint in lowPoints)
+            {
+                var basinParts = new List<(int x, int y, int height)>{ lowPoint };
+                basins.Add(CheckBasinNeighbours(lowPoint, basinParts, map));
+            }
+
+            return basins.OrderByDescending(x=>x.Count).ToList();
+        }
+
+        public List<(int x, int y, int height)> CheckBasinNeighbours((int x, int y, int height) point, List<(int x, int y, int height)>  basinParts, List<(int x, int y, int height)> map)
+        {
+            var upPoint = map.FirstOrDefault(coord => coord.x == point.x && coord.y == point.y - 1);
+            if(upPoint.height <9 && upPoint.height > point.height && !basinParts.Contains(upPoint))
+            {
+                basinParts.Add(upPoint);
+                basinParts = CheckBasinNeighbours(upPoint, basinParts, map);
+            }
+
+            var downPoint = map.FirstOrDefault(coord => coord.x == point.x && coord.y == point.y + 1);
+            if (downPoint.height < 9 && downPoint.height > point.height && !basinParts.Contains(downPoint))
+            {
+                basinParts.Add(downPoint);
+                basinParts = CheckBasinNeighbours(downPoint, basinParts, map);
+            }
+
+            var leftPoint = map.FirstOrDefault(coord => coord.x == point.x - 1 && coord.y == point.y);
+            if (leftPoint.height < 9 && leftPoint.height > point.height && !basinParts.Contains(leftPoint))
+            {
+                basinParts.Add(leftPoint);
+                basinParts = CheckBasinNeighbours(leftPoint, basinParts, map);
+            }
+
+            var rightPoint = map.FirstOrDefault(coord => coord.x == point.x + 1 && coord.y == point.y);
+            if (rightPoint.height < 9 && rightPoint.height > point.height && !basinParts.Contains(rightPoint))
+            {
+                basinParts.Add(rightPoint);
+                basinParts = CheckBasinNeighbours(rightPoint, basinParts, map);
+            }
+
+            return basinParts;
         }
         #endregion
     }
