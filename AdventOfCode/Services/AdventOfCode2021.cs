@@ -569,6 +569,79 @@ namespace AdventOfCode.Services
             return basinParts;
         }
         #endregion
+
+        #region Day 10
+        public List<string> ConvertDay10Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
+
+        public long Day10_PuzzleOne(List<string> input)
+        {
+            return input.Sum(x => CheckLineSyntax(x, true));
+        }
+
+        public long Day10_PuzzleTwo(List<string> input)
+        {
+            var results = input.Select(x => CheckLineSyntax(x, false)).Where(x => x != -1).OrderBy(x => x).ToList();
+            return results[results.Count / 2];
+        }
+
+
+        public long CheckLineSyntax(string line, bool returnCorrupted)
+        {
+            var lastOpen = new List<char>();
+            foreach (var part in line)
+            {
+                if (part == '(' || part == '[' || part == '{' || part == '<')
+                {
+                    lastOpen.Add(part);
+                }
+                else
+                {
+                    if (lastOpen.Count == 0 || Math.Abs(part - lastOpen.Last()) > 2)
+                    {
+                        if (returnCorrupted)
+                        {
+                            return part switch
+                            {
+                                ')' => 3,
+                                ']' => 57,
+                                '}' => 1197,
+                                '>' => 25137
+                            };
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        lastOpen.RemoveAt(lastOpen.Count - 1);
+                    }
+                }
+            }
+            if (!returnCorrupted)
+            {
+                long result = 0;
+
+                lastOpen.Reverse();
+                foreach (var openBracket in lastOpen)
+                {
+                    result = result * 5 + openBracket switch
+                    {
+                        '(' => 1,
+                        '[' => 2,
+                        '{' => 3,
+                        '<' => 4
+                    };
+                }
+                return result;
+            }
+            return default;
+        }
+        #endregion
     }
 }
 

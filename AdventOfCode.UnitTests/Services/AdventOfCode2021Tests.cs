@@ -244,5 +244,29 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, basins.Aggregate(1, (total, next) => total * next.Count));
         }
         #endregion
+
+        #region Day 10
+        [Test]
+        [TestCase("{([(<{}[<>[]}>{[]{[(<()>", 1197)]
+        [TestCase("[[<[([]))<([[{}[[()]]]", 3)]
+        [TestCase("[{[{({}]{}}([{[{{{}}([]", 57)]
+        [TestCase("[<(<(<(<{}))><([]([]()", 3)]
+        [TestCase("<{([([[(<>()){}]>(<<{{", 25137)]
+        public void Day10_SyntaxChecker(string line, int result)
+        {
+            Assert.AreEqual(result, _service.CheckLineSyntax(line, true));
+        }
+
+        [Test]
+        [TestCase("[({(<(())[]>[[{[]{<()<>>", 288957)]
+        [TestCase("[(()[<>])]({[<{<<[]>>(", 5566)]
+        [TestCase("(((({<>}<{<{<>}{[]{[]{}", 1480781)]
+        [TestCase("{<[[]]>}<{[{[{[]{()[[[]", 995444)]
+        [TestCase("<{([{{}}[<[[[<>{}]]]>[]]", 294)]
+        public void Day10_Autocompleter(string line, int result)
+        {
+            Assert.AreEqual(result, _service.CheckLineSyntax(line, false));
+        }
+        #endregion
     }
 }
