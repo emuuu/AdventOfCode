@@ -642,6 +642,88 @@ namespace AdventOfCode.Services
             return default;
         }
         #endregion
+
+        #region Day 11
+        public List<Octupus> ConvertDay11Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).SelectMany((line, y) => line.Select((point, x) =>new Octupus
+            {
+                X = x,
+                Y = y,
+                Level = int.Parse(point.ToString())
+            })).ToList();
+        }
+
+        public long Day11_PuzzleOne(List<Octupus> input)
+        {
+            return ModelDumboOctopusesCycle(input, 100, false);
+        }
+
+        public long Day11_PuzzleTwo(List<Octupus> input)
+        {
+            return ModelDumboOctopusesCycle(input, 100, true);
+        }
+
+
+        public int ModelDumboOctopusesCycle(List<Octupus> map, int steps, bool partTwo)
+        {
+            var result = (map: map, flashes: 0);
+            for (var step = 0; step < steps; step++)
+            {
+                foreach (var octupus in result.map)
+                {
+                    if(octupus.Flashed)
+                    {
+                        octupus.Level = 0;
+                    }
+                    octupus.Level++;
+                    octupus.Flashed = false;
+                }
+                result = ProcessOctupusFlashes(result);
+                if (partTwo)
+                {
+                    steps++;
+                    if (result.map.All(x => x.Flashed))
+                    {
+                        return step + 1;
+                    }
+                }
+            }
+            return result.flashes;
+        }
+
+        public (List<Octupus> map, int flashes) ProcessOctupusFlashes((List<Octupus> map, int flashes) input)
+        {
+            foreach (var octupus in input.map.Where(x => x.Level > 9 && !x.Flashed))
+            {
+                octupus.Flashed = true;
+                input.flashes++;
+                var followTrigger = false;
+
+                foreach (var adjacentOctupuses in input.map.Where(adjacentPoint => !adjacentPoint.Flashed && adjacentPoint.X >= octupus.X - 1 && adjacentPoint.X <= octupus.X + 1 && adjacentPoint.Y >= octupus.Y - 1 && adjacentPoint.Y <= octupus.Y + 1))
+                {
+                    adjacentOctupuses.Level++;
+                    if (adjacentOctupuses.Level > 9)
+                    {
+                        followTrigger = true;
+                    }
+                    if (followTrigger)
+                    {
+                        input =  ProcessOctupusFlashes(input);
+                    }
+                }
+            }
+            return input;
+        }
+
+        public class Octupus
+        {
+            public int X;
+            public int Y;
+            public int Level;
+            public bool Flashed;
+        }
+        #endregion
     }
 }
 

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System;
 using static AdventOfCode.Services.AdventOfCode2020;
 using System.Text.RegularExpressions;
+using static AdventOfCode.Services.AdventOfCode2021;
 
 namespace AdventOfCode.Services.UnitTests
 {
@@ -266,6 +267,22 @@ namespace AdventOfCode.Services.UnitTests
         public void Day10_Autocompleter(string line, int result)
         {
             Assert.AreEqual(result, _service.CheckLineSyntax(line, false));
+        }
+        #endregion
+
+        #region Day 11
+        [Test]
+        [TestCase(new string[] { "5483143223", "2745854711", "5264556173", "6141336146", "6357385478", "4167524645", "2176841721", "6882881134", "4846848554", "5283751526" }, false, 1656)]
+        [TestCase(new string[] { "5483143223", "2745854711", "5264556173", "6141336146", "6357385478", "4167524645", "2176841721", "6882881134", "4846848554", "5283751526" }, true, 195)]
+        public void Day10_SyntaxChecker(string[] input,bool partTwo, int result)
+        {
+            var map = input.SelectMany((line, y) => line.Select((point, x) => new Octupus
+            {
+                X = x,
+                Y = y,
+                Level = int.Parse(point.ToString())
+            })).ToList();
+            Assert.AreEqual(result, _service.ModelDumboOctopusesCycle(map, 100, partTwo));
         }
         #endregion
     }
