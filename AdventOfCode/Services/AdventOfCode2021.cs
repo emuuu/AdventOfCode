@@ -569,6 +569,161 @@ namespace AdventOfCode.Services
             return basinParts;
         }
         #endregion
+
+        #region Day 10
+        public List<string> ConvertDay10Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
+
+        public long Day10_PuzzleOne(List<string> input)
+        {
+            return input.Sum(x => CheckLineSyntax(x, true));
+        }
+
+        public long Day10_PuzzleTwo(List<string> input)
+        {
+            var results = input.Select(x => CheckLineSyntax(x, false)).Where(x => x != -1).OrderBy(x => x).ToList();
+            return results[results.Count / 2];
+        }
+
+
+        public long CheckLineSyntax(string line, bool returnCorrupted)
+        {
+            var lastOpen = new List<char>();
+            foreach (var part in line)
+            {
+                if (part == '(' || part == '[' || part == '{' || part == '<')
+                {
+                    lastOpen.Add(part);
+                }
+                else
+                {
+                    if (lastOpen.Count == 0 || Math.Abs(part - lastOpen.Last()) > 2)
+                    {
+                        if (returnCorrupted)
+                        {
+                            return part switch
+                            {
+                                ')' => 3,
+                                ']' => 57,
+                                '}' => 1197,
+                                '>' => 25137
+                            };
+                        }
+                        else
+                        {
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        lastOpen.RemoveAt(lastOpen.Count - 1);
+                    }
+                }
+            }
+            if (!returnCorrupted)
+            {
+                long result = 0;
+
+                lastOpen.Reverse();
+                foreach (var openBracket in lastOpen)
+                {
+                    result = result * 5 + openBracket switch
+                    {
+                        '(' => 1,
+                        '[' => 2,
+                        '{' => 3,
+                        '<' => 4
+                    };
+                }
+                return result;
+            }
+            return default;
+        }
+        #endregion
+
+        #region Day 11
+        public List<Octupus> ConvertDay11Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).SelectMany((line, y) => line.Select((point, x) =>new Octupus
+            {
+                X = x,
+                Y = y,
+                Level = int.Parse(point.ToString())
+            })).ToList();
+        }
+
+        public long Day11_PuzzleOne(List<Octupus> input)
+        {
+            return ModelDumboOctopusesCycle(input, 100, false);
+        }
+
+        public long Day11_PuzzleTwo(List<Octupus> input)
+        {
+            return ModelDumboOctopusesCycle(input, 100, true);
+        }
+
+
+        public int ModelDumboOctopusesCycle(List<Octupus> map, int steps, bool partTwo)
+        {
+            var result = (map: map, flashes: 0);
+            for (var step = 0; step < steps; step++)
+            {
+                foreach (var octupus in result.map)
+                {
+                    if(octupus.Flashed)
+                    {
+                        octupus.Level = 0;
+                    }
+                    octupus.Level++;
+                    octupus.Flashed = false;
+                }
+                result = ProcessOctupusFlashes(result);
+                if (partTwo)
+                {
+                    steps++;
+                    if (result.map.All(x => x.Flashed))
+                    {
+                        return step + 1;
+                    }
+                }
+            }
+            return result.flashes;
+        }
+
+        public (List<Octupus> map, int flashes) ProcessOctupusFlashes((List<Octupus> map, int flashes) input)
+        {
+            foreach (var octupus in input.map.Where(x => x.Level > 9 && !x.Flashed))
+            {
+                octupus.Flashed = true;
+                input.flashes++;
+                var followTrigger = false;
+
+                foreach (var adjacentOctupuses in input.map.Where(adjacentPoint => !adjacentPoint.Flashed && adjacentPoint.X >= octupus.X - 1 && adjacentPoint.X <= octupus.X + 1 && adjacentPoint.Y >= octupus.Y - 1 && adjacentPoint.Y <= octupus.Y + 1))
+                {
+                    adjacentOctupuses.Level++;
+                    if (adjacentOctupuses.Level > 9)
+                    {
+                        followTrigger = true;
+                    }
+                    if (followTrigger)
+                    {
+                        input =  ProcessOctupusFlashes(input);
+                    }
+                }
+            }
+            return input;
+        }
+
+        public class Octupus
+        {
+            public int X;
+            public int Y;
+            public int Level;
+            public bool Flashed;
+        }
+        #endregion
     }
 }
 
