@@ -12,6 +12,7 @@ namespace AdventOfCode.App
 {
     public class Application
     {
+        public readonly AdventOfCode2022 _advent2022Service;
         public readonly AdventOfCode2021 _advent2021Service;
         public readonly AdventOfCode2020 _advent2020Service;
         public readonly AdventOfCode2019 _advent2019Service;
@@ -22,8 +23,9 @@ namespace AdventOfCode.App
         private string _sessionID;
         private int _year;
 
-        public Application(AdventOfCode2021 advent2021Service, AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, IOptions<Settings> settings)
+        public Application(AdventOfCode2022 advent2022Service, AdventOfCode2021 advent2021Service, AdventOfCode2020 advent2020Service, AdventOfCode2019 advent2019Service, IOptions<Settings> settings)
         {
+            _advent2022Service = advent2022Service;
             _advent2021Service = advent2021Service;
             _advent2020Service = advent2020Service;
             _advent2019Service = advent2019Service;
@@ -57,11 +59,13 @@ namespace AdventOfCode.App
         [NotInMethodList]
         public void Run()
         {
+            /*
             if (string.IsNullOrEmpty(_sessionID))
             {
                 Console.WriteLine("Insert your Advent of Code SessionID:");
                 _sessionID = ReadLineOrEsc();
             }
+            */
             Console.WriteLine("");
             
             do
@@ -173,6 +177,8 @@ namespace AdventOfCode.App
             }
         }
 
+        //disabled
+        [NotInMethodList]
         public void UpdateSessionID()
         {
             Console.WriteLine("Update SessionID temporarily:");

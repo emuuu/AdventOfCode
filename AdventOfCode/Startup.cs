@@ -32,6 +32,7 @@ namespace AdventOfCode
             services.AddScoped<AdventOfCode2019>();
             services.AddScoped<AdventOfCode2020>();
             services.AddScoped<AdventOfCode2021>();
+            services.AddScoped<AdventOfCode2022>();
 
             services.AddTransient<Application>();
         }
