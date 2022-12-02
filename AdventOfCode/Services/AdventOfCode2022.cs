@@ -84,7 +84,46 @@ namespace AdventOfCode.Services
         }
 
         #endregion
+        #region Day 02 
+        public List<string> ConvertDay2Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
 
+        public int Day2_PuzzleOne(List<string> input)
+        {
+            var results = input.Select(x => x switch
+            {
+                "A X" => 3 + 1,
+                "A Y" => 6 + 2,
+                "A Z" => 0 + 3,
+                "B X" => 0 + 1,
+                "B Y" => 3 + 2,
+                "B Z" => 6 + 3,
+                "C X" => 6 + 1,
+                "C Y" => 0 + 2,
+                "C Z" => 3 + 3,
+            });
+            return results.Sum();
+        }
+
+        public int Day2_PuzzleTwo(List<string> input)
+        {
+            var results = input.Select(x => x switch
+            {
+                "A X" => 3,
+                "A Y" => 4,
+                "A Z" => 8,
+                "B X" => 1,
+                "B Y" => 5,
+                "B Z" => 9,
+                "C X" => 2,
+                "C Y" => 6,
+                "C Z" => 7,
+            });
+            return results.Sum();
+        }
+        #endregion
     }
 }
 
