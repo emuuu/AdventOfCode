@@ -130,14 +130,14 @@ namespace AdventOfCode.Services
         public List<(List<int>, List<int>, List<int>)> ConvertDay3Input(string inputPath)
         {
             var i = 1;
-            var alphabet = Enumerable.Range('a', 'z' - 'a' + 1).ToDictionary(x => (char)x, x => i++).Union(Enumerable.Range('A', 'Z' - 'A' + 1).ToDictionary(x => (char)x, x => i++)).ToDictionary(x=>x.Key, x=>x.Value);
+            var alphabet = Enumerable.Range('a', 'z' - 'a' + 1).ToDictionary(x => (char)x, x => i++).Union(Enumerable.Range('A', 'Z' - 'A' + 1).ToDictionary(x => (char)x, x => i++)).ToDictionary(x => x.Key, x => x.Value);
 
             return File.ReadAllLines(inputPath).Select(x => (x.Select(y => alphabet[y]).ToList(), x.Take(x.Length / 2).Select(y => alphabet[y]).ToList(), x.Skip(x.Length / 2).Select(y => alphabet[y]).ToList())).ToList();
         }
 
         public int Day3_PuzzleOne(List<(List<int>, List<int>, List<int>)> input)
         {
-            return input.SelectMany(x=> x.Item2.Intersect(x.Item3)).Sum();
+            return input.SelectMany(x => x.Item2.Intersect(x.Item3)).Sum();
         }
 
         public int Day3_PuzzleTwo(List<(List<int>, List<int>, List<int>)> input)
@@ -150,6 +150,23 @@ namespace AdventOfCode.Services
             }
             return sum;
 
+        }
+        #endregion
+
+        #region Day 04
+        public IEnumerable<(IEnumerable<int>, IEnumerable<int>)> ConvertDay4Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(line => (Enumerable.Range(int.Parse(line.Split(',')[0].Split('-')[0]), int.Parse(line.Split(',')[0].Split('-')[1]) - int.Parse(line.Split(',')[0].Split('-')[0]) + 1), Enumerable.Range(int.Parse(line.Split(',')[1].Split('-')[0]), int.Parse(line.Split(',')[1].Split('-')[1]) - int.Parse(line.Split(',')[1].Split('-')[0]) + 1)));
+        }
+
+        public int Day4_PuzzleOne(IEnumerable<(IEnumerable<int>, IEnumerable<int>)> input)
+        {
+            return input.Select(x => x.Item1.Intersect(x.Item2).SequenceEqual(x.Item1) || x.Item1.Intersect(x.Item2).SequenceEqual(x.Item2) ? 1 : 0).Sum();
+        }
+
+        public int Day4_PuzzleTwo(IEnumerable<(IEnumerable<int>, IEnumerable<int>)> input)
+        {
+            return input.Select(x => x.Item1.Intersect(x.Item2).Any() ? 1 : 0).Sum();
         }
         #endregion
     }
