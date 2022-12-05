@@ -84,6 +84,7 @@ namespace AdventOfCode.Services
         }
 
         #endregion
+
         #region Day 02 
         public List<string> ConvertDay2Input(string inputPath)
         {
@@ -122,6 +123,33 @@ namespace AdventOfCode.Services
                 "C Z" => 7,
             });
             return results.Sum();
+        }
+        #endregion
+
+        #region Day 03
+        public List<(List<int>, List<int>, List<int>)> ConvertDay3Input(string inputPath)
+        {
+            var i = 1;
+            var alphabet = Enumerable.Range('a', 'z' - 'a' + 1).ToDictionary(x => (char)x, x => i++).Union(Enumerable.Range('A', 'Z' - 'A' + 1).ToDictionary(x => (char)x, x => i++)).ToDictionary(x=>x.Key, x=>x.Value);
+
+            return File.ReadAllLines(inputPath).Select(x => (x.Select(y => alphabet[y]).ToList(), x.Take(x.Length / 2).Select(y => alphabet[y]).ToList(), x.Skip(x.Length / 2).Select(y => alphabet[y]).ToList())).ToList();
+        }
+
+        public int Day3_PuzzleOne(List<(List<int>, List<int>, List<int>)> input)
+        {
+            return input.SelectMany(x=> x.Item2.Intersect(x.Item3)).Sum();
+        }
+
+        public int Day3_PuzzleTwo(List<(List<int>, List<int>, List<int>)> input)
+        {
+            var sum = 0;
+            for (var i = 0; i < input.Count; i = i + 3)
+            {
+                var set = input.Skip(i).Take(3).ToList();
+                sum += set[0].Item1.Intersect(set[1].Item1.Intersect(set[2].Item1)).Sum();
+            }
+            return sum;
+
         }
         #endregion
     }
