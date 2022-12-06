@@ -173,8 +173,8 @@ namespace AdventOfCode.Services
         #region Day 05
         public (List<List<char>>, IEnumerable<int>) ConvertDay5Input(string inputPath)
         {
-            var lines =  File.ReadAllLines(inputPath);
-            var stackEnd = lines.Select((line, i) => (line,i)).First(x=>x.line.StartsWith(" 1")).i;
+            var lines = File.ReadAllLines(inputPath);
+            var stackEnd = lines.Select((line, i) => (line, i)).First(x => x.line.StartsWith(" 1")).i;
             var stacks = Enumerable.Range(1, int.Parse(lines[stackEnd].Trim().Last().ToString())).Select(x => lines.Take(stackEnd).Where(y => y[3 * (x - 1) + x] != ' ').Select(y => y[3 * (x - 1) + x]).ToList()).ToList();
             var commands = lines.Skip(stackEnd + 2).Select(x => int.Parse(new string(x.Where(c => char.IsDigit(c)).ToArray())));
             return (stacks, commands);
@@ -187,17 +187,17 @@ namespace AdventOfCode.Services
                 var to = command % 10 - 1;
                 var from = (command % 100 - to) / 10 - 1;
                 var amount = (command % 1000 - from - to) / 100;
-                if(command >= 1000)
+                if (command >= 1000)
                 {
                     amount = (command % 10000 - from - to - amount) / 100;
                 }
-                
+
                 for (var i = 0; i < amount; i++)
                 {
                     input.Item1[to].InsertRange(0, input.Item1[from].Take(1));
                     input.Item1[from].RemoveRange(0, 1);
                 }
-                
+
             }
             return new string(input.Item1.Select(x => x[0]).ToArray());
         }
@@ -219,6 +219,55 @@ namespace AdventOfCode.Services
 
             }
             return new string(input.Item1.Select(x => x[0]).ToArray());
+        }
+        #endregion
+
+        #region Day 06
+        public string ConvertDay6Input(string inputPath)
+        {
+            return File.ReadAllText(inputPath);
+        }
+
+        public int Day6_PuzzleOne(string input)
+        {
+            var queue = new Queue<char>();
+            for(var i = 0; i < input.Length; i++)
+            {
+                queue.Enqueue(input[i]);
+
+                if (queue.Count > 4)
+                {
+                    queue.Dequeue();
+                }
+                
+                if (queue.Distinct().Count() == 4)
+                {
+                    return i + 1;
+                }
+            }
+
+            return default;
+        }
+
+        public int Day6_PuzzleTwo(string input)
+        {
+            var queue = new Queue<char>();
+            for (var i = 0; i < input.Length; i++)
+            {
+                queue.Enqueue(input[i]);
+
+                if (queue.Count > 14)
+                {
+                    queue.Dequeue();
+                }
+
+                if (queue.Distinct().Count() == 14)
+                {
+                    return i + 1;
+                }
+            }
+
+            return default;
         }
         #endregion
     }
