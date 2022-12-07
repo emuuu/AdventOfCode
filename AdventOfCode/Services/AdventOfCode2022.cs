@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -231,7 +232,7 @@ namespace AdventOfCode.Services
         public int Day6_PuzzleOne(string input)
         {
             var queue = new Queue<char>();
-            for(var i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Length; i++)
             {
                 queue.Enqueue(input[i]);
 
@@ -239,7 +240,7 @@ namespace AdventOfCode.Services
                 {
                     queue.Dequeue();
                 }
-                
+
                 if (queue.Distinct().Count() == 4)
                 {
                     return i + 1;
@@ -268,6 +269,76 @@ namespace AdventOfCode.Services
             }
 
             return default;
+        }
+        #endregion
+
+        #region Day 06
+
+        public class Dir
+        {
+            public string Name;
+            public List<string> Contents = new List<string>();
+            public long Size;
+        }
+
+        public List<Dir> ConvertDay7Input(string inputPath)
+        {
+            var dirs = new List<Dir> { new Dir { Name = "/" } };
+            var lines = File.ReadAllLines(inputPath);
+            var currentDir = dirs.First();
+            for (var i = 1; i < lines.Length;i++)
+            {
+                if (lines[i].StartsWith("$ ls"))
+                {
+                    while (i + 1 < lines.Length && !lines[i + 1].StartsWith("$"))
+                    {
+                        i++;
+                        if (lines[i].StartsWith("dir"))
+                        {
+                            var dirName = $"{currentDir.Name}.{lines[i].Replace("dir ", "")}";
+                            dirs.Add(new Dir { Name = dirName });
+                            currentDir.Contents.Add(dirName);
+                        }
+                        else
+                        {
+                            currentDir.Size += long.Parse(lines[i].Split(' ')[0]);
+                        }
+                    }
+                }
+
+                if (lines[i].StartsWith("$ cd"))
+                {
+                    if (lines[i].EndsWith(".."))
+                    {
+                        currentDir = dirs.First(x => x.Contents.Contains(currentDir.Name));
+                    }
+                    else
+                    {
+                        currentDir = dirs.First(x => x.Name == $"{currentDir.Name}.{lines[i].Replace("$ cd ", "")}");
+                    }
+                }
+            }
+
+            dirs.Reverse();
+            foreach(var dir in dirs)
+            {
+                foreach (var parentDir in dirs.Where(x => x.Contents.Contains(dir.Name)))
+                {
+                    parentDir.Size += dir.Size;
+                }
+            }
+
+            return dirs;
+        }
+
+        public long Day7_PuzzleOne(List<Dir> input)
+        {
+            return input.Where(x => x.Size <= 100000).Sum(x => x.Size);
+        }
+
+        public long Day7_PuzzleTwo(List<Dir> input)
+        {
+            return input.Where(x => x.Size >= 30000000- (70000000 - input.Last().Size)).Min(x => x.Size);
         }
         #endregion
     }
