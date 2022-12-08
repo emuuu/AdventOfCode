@@ -272,7 +272,7 @@ namespace AdventOfCode.Services
         }
         #endregion
 
-        #region Day 06
+        #region Day 07
 
         public class Dir
         {
@@ -286,7 +286,7 @@ namespace AdventOfCode.Services
             var dirs = new List<Dir> { new Dir { Name = "/" } };
             var lines = File.ReadAllLines(inputPath);
             var currentDir = dirs.First();
-            for (var i = 1; i < lines.Length;i++)
+            for (var i = 1; i < lines.Length; i++)
             {
                 if (lines[i].StartsWith("$ ls"))
                 {
@@ -320,7 +320,7 @@ namespace AdventOfCode.Services
             }
 
             dirs.Reverse();
-            foreach(var dir in dirs)
+            foreach (var dir in dirs)
             {
                 foreach (var parentDir in dirs.Where(x => x.Contents.Contains(dir.Name)))
                 {
@@ -338,7 +338,7 @@ namespace AdventOfCode.Services
 
         public long Day7_PuzzleTwo(List<Dir> input)
         {
-            return input.Where(x => x.Size >= 30000000- (70000000 - input.Last().Size)).Min(x => x.Size);
+            return input.Where(x => x.Size >= 30000000 - (70000000 - input.Last().Size)).Min(x => x.Size);
         }
         #endregion
     }
