@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace AdventOfCode.Services
 {
@@ -339,6 +340,142 @@ namespace AdventOfCode.Services
         public long Day7_PuzzleTwo(List<Dir> input)
         {
             return input.Where(x => x.Size >= 30000000 - (70000000 - input.Last().Size)).Min(x => x.Size);
+        }
+        #endregion
+
+        #region Day 08
+
+        public List<List<int>> ConvertDay8Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x=> x.Select(y => int.Parse(y.ToString())).ToList()).ToList();
+        }
+
+        public long Day8_PuzzleOne(List<List<int>> input)
+        {
+            var visibleTrees = input.Select((y, i) => y.Select((x, j) => i == 0 || j == 0 || i == input.Count - 1 || j == y.Count - 1 ? true : false).ToList()).ToList();
+
+            for (var y = 1; y < input.Count - 1; y++)
+            {
+                var xMax = input[y].Max();
+                var firstXMax = input[y].Select((a, i) => (a, i)).First(b => b.a == xMax).i;
+                var lastXMax = input[y].Select((a, i) => (a, i)).Last(b => b.a == xMax).i;
+                visibleTrees[y][firstXMax] = true;
+                visibleTrees[y][lastXMax] = true;
+
+                var xLeftMax = input[y][0];
+                for (var xLeft = 1; xLeft < firstXMax; xLeft++)
+                {
+                    if (input[y][xLeft] > xLeftMax)
+                    {
+                        visibleTrees[y][xLeft] = true;
+                        xLeftMax = input[y][xLeft];
+                    }
+                }
+
+                var xRightMax = input[y][input[y].Count - 1];
+                for (var xRight = input[y].Count - 2; xRight > lastXMax; xRight--)
+                {
+                    if (input[y][xRight] > xRightMax)
+                    {
+                        visibleTrees[y][xRight] = true;
+                        xRightMax = input[y][xRight];
+                    }
+                }
+            }
+
+            for (var x = 1; x < input[0].Count - 1; x++)
+            {
+                var column = input.Select(a => a[x]).ToList();
+                var yMax = column.Max();
+                var firstYMax = column.Select((a, i) => (a, i)).First(b => b.a == yMax).i;
+                var lastYMax = column.Select((a, i) => (a, i)).Last(b => b.a == yMax).i;
+                visibleTrees[firstYMax][x] = true;
+                visibleTrees[lastYMax][x] = true;
+
+                var yTopMax = input[0][x];
+                for (var yTop = 1; yTop < firstYMax; yTop++)
+                {
+                    if (input[yTop][x] > yTopMax)
+                    {
+                        visibleTrees[yTop][x] = true;
+                        yTopMax = input[yTop][x];
+                    }
+                }
+
+                var yBotMax = input[input.Count - 1][x];
+                for (var yBot = input.Count - 2; yBot > lastYMax; yBot--)
+                {
+                    if (input[yBot][x] > yBotMax)
+                    {
+                        visibleTrees[yBot][x] = true;
+                        yBotMax = input[yBot][x];
+                    }
+                }
+            }
+
+
+            return visibleTrees.SelectMany(x => x).Count(y => y);
+        }
+
+        public long Day8_PuzzleTwo(List<List<int>> input)
+        {
+            var maxScenicScore = 1;
+            var maxHeight = input.SelectMany(a => a).Distinct().OrderDescending();
+            foreach (var treeHeight in input.SelectMany(a => a).Distinct().OrderDescending())
+            {
+                foreach (var possibleTree in input.SelectMany((a, y) => a.Select((b, x) => (b, x, y))).Where(t => t.b == treeHeight && t.x > 0 && t.x < input[0].Count - 1 && t.y > 0 && t.y < input.Count - 1).Select(t => (t.x, t.y)))
+                {
+                    var scenicScore = 1;
+                    var seenTrees = 0;
+                    for (var x = possibleTree.x - 1; x >= 0; x--)
+                    {
+                        seenTrees++;
+                        if (x == 0 || input[possibleTree.y][x] >= treeHeight)
+                        {
+                            scenicScore *= seenTrees;
+                            seenTrees = 0;
+                            break;
+                        }
+                    }
+                    for (var x = possibleTree.x + 1; x < input[0].Count; x++)
+                    {
+                        seenTrees++;
+                        if (x == input[possibleTree.y].Count - 1 || input[possibleTree.y][x] >= treeHeight)
+                        {
+                            scenicScore *= seenTrees;
+                            seenTrees = 0;
+                            break;
+                        }
+                    }
+
+                    for (var y = possibleTree.y - 1; y >= 0; y--)
+                    {
+                        seenTrees++;
+                        if (y == 0 || input[y][possibleTree.x] >= treeHeight)
+                        {
+                            scenicScore *= seenTrees;
+                            seenTrees = 0;
+                            break;
+                        }
+                    }
+                    for (var y = possibleTree.y + 1; y < input.Count; y++)
+                    {
+                        seenTrees++;
+                        if (y == input.Count - 1 || input[y][possibleTree.x] >= treeHeight)
+                        {
+                            scenicScore *= seenTrees;
+                            seenTrees = 0;
+                            break;
+                        }
+                    }
+
+                    if(scenicScore > maxScenicScore)
+                    {
+                        maxScenicScore = scenicScore;
+                    }
+                }
+            }
+            return maxScenicScore;
         }
         #endregion
     }
