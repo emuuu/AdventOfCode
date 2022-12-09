@@ -347,7 +347,7 @@ namespace AdventOfCode.Services
 
         public List<List<int>> ConvertDay8Input(string inputPath)
         {
-            return File.ReadAllLines(inputPath).Select(x=> x.Select(y => int.Parse(y.ToString())).ToList()).ToList();
+            return File.ReadAllLines(inputPath).Select(x => x.Select(y => int.Parse(y.ToString())).ToList()).ToList();
         }
 
         public long Day8_PuzzleOne(List<List<int>> input)
@@ -469,13 +469,112 @@ namespace AdventOfCode.Services
                         }
                     }
 
-                    if(scenicScore > maxScenicScore)
+                    if (scenicScore > maxScenicScore)
                     {
                         maxScenicScore = scenicScore;
                     }
                 }
             }
             return maxScenicScore;
+        }
+        #endregion
+
+        #region Day 09
+
+        public List<(int Steps, int X, int Y)> ConvertDay9Input(string inputPath)
+        {
+            var vectors = new List<(int Steps, int X, int Y)>();
+            foreach (var line in File.ReadAllLines(inputPath).Select(x => (x.Split(' ')[0], x.Split(' ')[1])))
+            {
+                var steps = int.Parse(line.Item2);
+                switch (line.Item1)
+                {
+                    case "R":
+                        {
+                            vectors.Add((steps, 1, 0));
+                            break;
+                        }
+                    case "L":
+                        {
+                            vectors.Add((steps, -1, 0));
+                            break;
+                        }
+                    case "U":
+                        {
+                            vectors.Add((steps, 0, 1));
+                            break;
+                        }
+                    case "D":
+                        {
+                            vectors.Add((steps, 0, -1));
+                            break;
+                        }
+                }
+            }
+            return vectors;
+        }
+
+        public long Day9_PuzzleOne(List<(int Steps, int X, int Y)> input)
+        {
+            return MoveKnots(2, input).Count;
+        }
+
+        public long Day9_PuzzleTwo(List<(int Steps, int X, int Y)> input)
+        {
+            return MoveKnots(10, input).Count;
+        }
+
+        private List<(int X, int y)> MoveKnots(int knotNumber, List<(int Steps, int X, int Y)> input)
+        {
+            var knots = Enumerable.Range(0, knotNumber).Select(x => new int[] { 0, 0 }).ToList();
+            var tailVisits = new List<(int X, int Y)>();
+            foreach (var vector in input)
+            {
+                for (var i = 1; i <= vector.Steps; i++)
+                {
+                    knots[0][0] += vector.X;
+                    knots[0][1] += vector.Y;
+                    for (var k = 1; k < knots.Count; k++)
+                    {
+                        var xDistance = knots[k - 1][0] - knots[k][0];
+                        var yDistance = knots[k - 1][1] - knots[k][1];
+                        var absXDistance = Math.Abs(xDistance);
+                        var absYDistance = Math.Abs(yDistance);
+                        if (absXDistance == 2 || absYDistance == 2)
+                        {
+                            if(absXDistance == 2 && absYDistance == 2)
+                            {
+                                knots[k][0] += xDistance / 2;
+                                knots[k][1] += yDistance / 2;
+                            }
+                            else if (absYDistance == 2)
+                            {
+                                knots[k][1] += yDistance / 2;
+                                if (absXDistance == 1)
+                                {
+                                    knots[k][0] += xDistance;
+                                }
+                            }
+                            else if (absXDistance == 2)
+                            {
+                                knots[k][0] += xDistance / 2;
+                                if (absYDistance == 1)
+                                {
+                                    knots[k][1] += yDistance;
+                                }
+                            }
+                        }
+                        if (k == knots.Count - 1)
+                        {
+                            if (!tailVisits.Any(a => a.X == knots[k][0] && a.Y == knots[k][1]))
+                            {
+                                tailVisits.Add((knots[k][0], knots[k][1]));
+                            }
+                        }
+                    }
+                }
+            }
+            return tailVisits;
         }
         #endregion
     }
