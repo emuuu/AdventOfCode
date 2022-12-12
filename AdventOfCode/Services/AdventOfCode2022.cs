@@ -597,9 +597,9 @@ namespace AdventOfCode.Services
         {
             var values = ExecuteCommands(input);
             var crt = 0;
-            foreach(var cycle in values)
+            foreach (var cycle in values)
             {
-                if(crt >= cycle - 1 && crt <= cycle + 1)
+                if (crt >= cycle - 1 && crt <= cycle + 1)
                 {
                     Console.Write("#");
                 }
@@ -608,7 +608,7 @@ namespace AdventOfCode.Services
                     Console.Write(" ");
                 }
                 crt++;
-                if(crt == 40)
+                if (crt == 40)
                 {
                     Console.Write("\r\n");
                     crt = 0;
@@ -630,6 +630,98 @@ namespace AdventOfCode.Services
                 x += command.ValueChange;
             }
             return values;
+        }
+        #endregion
+
+        #region Day 11
+        public class Monkey
+        {
+            public List<long> Items;
+            public int OperatorValue;
+            public bool OperationIsQuadrature;
+            public bool OperationIsAddition;
+            public int TestDivisor;
+            public int TestTrueTarget;
+            public int TestFalseTarget;
+            public long InspectedItems;
+
+            public long ChangeWorryLevel(long oldLevel, int reliefLevel)
+            {
+                var newLevel = OperationIsQuadrature ? oldLevel * oldLevel : OperationIsAddition ? oldLevel += OperatorValue : oldLevel *= OperatorValue;
+                return newLevel / reliefLevel;
+            }
+
+            public int CheckItemTarget(long worryLevel)
+            {
+                return worryLevel % TestDivisor == 0 ? TestTrueTarget : TestFalseTarget;
+            }
+        }
+
+        public List<Monkey> ConvertDay11Input(string inputPath)
+        {
+            var monkeys = new List<Monkey>();
+            var lines = File.ReadAllLines(inputPath);
+            for(var i = 0; i < lines.Length;i++)
+            {
+                var monkey = new Monkey
+                {
+                    Items = lines[i + 1].Replace(" ", "").Split(':')[1].Split(",").Select(x => long.Parse(x)).ToList(),
+                    OperationIsQuadrature = lines[i + 2].EndsWith("old"),
+                    TestDivisor = int.Parse(lines[i + 3].Split(' ').Last()),
+                    TestTrueTarget = int.Parse(lines[i + 4].Split(' ').Last()),
+                    TestFalseTarget = int.Parse(lines[i + 5].Split(' ').Last())
+                };
+                if (!monkey.OperationIsQuadrature)
+                {
+                    monkey.OperationIsAddition = lines[i + 2].Contains("+");
+                    monkey.OperatorValue = int.Parse(lines[i + 2].Split(' ').Last());
+                }
+                monkeys.Add(monkey);
+                i += 6;
+            }
+            return monkeys;
+        }
+
+        public long Day11_PuzzleOne(List<Monkey> input)
+        {
+            for(var round = 1; round <= 20; round++)
+            {
+                foreach (var monkey in input)
+                {
+                    foreach (var item in monkey.Items)
+                    {
+                        var newÍtem = monkey.ChangeWorryLevel(item, 3); ;
+                        monkey.InspectedItems++;
+                        input[monkey.CheckItemTarget(newÍtem)].Items.Add(newÍtem);
+                    }
+                    monkey.Items.Clear();
+                }
+            }
+
+            return input.Select(x => x.InspectedItems).OrderDescending().Take(2).Aggregate((a, b) => a * b);
+        }
+
+        public long Day11_PuzzleTwo(List<Monkey> input)
+        {
+            var modulus = input.Select(x => (int)x.TestDivisor).Aggregate((a, b) => a * b);
+
+            
+            for (var round = 1; round <= 10000; round++)
+            {
+                foreach (var monkey in input)
+                {
+                    foreach (var item in monkey.Items)
+                    {
+                        var newItem = monkey.ChangeWorryLevel(item, 1);
+                        monkey.InspectedItems++;
+                        newItem %= modulus;
+                        input[monkey.CheckItemTarget(newItem)].Items.Add(newItem);
+                    }
+                    monkey.Items.Clear();
+                }
+            }
+
+            return input.Select(x => x.InspectedItems).OrderDescending().Take(2).Aggregate((a, b) => a * b);
         }
         #endregion
     }
