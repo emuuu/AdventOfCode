@@ -542,7 +542,7 @@ namespace AdventOfCode.Services
                         var absYDistance = Math.Abs(yDistance);
                         if (absXDistance == 2 || absYDistance == 2)
                         {
-                            if(absXDistance == 2 && absYDistance == 2)
+                            if (absXDistance == 2 && absYDistance == 2)
                             {
                                 knots[k][0] += xDistance / 2;
                                 knots[k][1] += yDistance / 2;
@@ -575,6 +575,61 @@ namespace AdventOfCode.Services
                 }
             }
             return tailVisits;
+        }
+        #endregion
+
+        #region Day 01
+
+        public List<(int Cycles, int ValueChange)> ConvertDay10Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => x.StartsWith("noop") ? (1, 0) : (2, int.Parse(x.Split(' ')[1]))).ToList();
+        }
+
+        public int Day10_PuzzleOne(List<(int Cycles, int ValueChange)> input)
+        {
+            var values = ExecuteCommands(input);
+            var relevantCylces = new List<int> { 20, 60, 100, 140, 180, 220 };
+
+            return relevantCylces.Select(x => x * values[x - 1]).Sum();
+        }
+
+        public int Day10_PuzzleTwo(List<(int Cycles, int ValueChange)> input)
+        {
+            var values = ExecuteCommands(input);
+            var crt = 0;
+            foreach(var cycle in values)
+            {
+                if(crt >= cycle - 1 && crt <= cycle + 1)
+                {
+                    Console.Write("#");
+                }
+                else
+                {
+                    Console.Write(" ");
+                }
+                crt++;
+                if(crt == 40)
+                {
+                    Console.Write("\r\n");
+                    crt = 0;
+                }
+            }
+            return default;
+        }
+
+        private List<int> ExecuteCommands(List<(int Cycles, int ValueChange)> commands)
+        {
+            var x = 1;
+            var values = new List<int>();
+            foreach (var command in commands)
+            {
+                for (var i = 0; i < command.Cycles; i++)
+                {
+                    values.Add(x);
+                }
+                x += command.ValueChange;
+            }
+            return values;
         }
         #endregion
     }
