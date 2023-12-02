@@ -44,5 +44,31 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, _service.ExtractDigits(input, true));
         }
         #endregion
+
+        #region Day 02
+        [Test]
+        [TestCase("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green", true)]
+        [TestCase("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue", true)]
+        [TestCase("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red", false)]
+        [TestCase("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red", false)]
+        [TestCase("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green", true)]
+        public void Day02_ExtractDigits(string input, bool result)
+        {
+            var game = _service.ConvertDescriptionToGame(input);
+            Assert.AreEqual(result, _service.GameIsPossible("12 red, 13 green, 14 blue", game.Sets));
+        }
+
+        [Test]
+        [TestCase("Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green", 48)]
+        [TestCase("Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue", 12)]
+        [TestCase("Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red", 1560)]
+        [TestCase("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red", 630)]
+        [TestCase("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green", 36)]
+        public void Day02_SetPowers(string input, int result)
+        {
+            var game = _service.ConvertDescriptionToGame(input);
+            Assert.AreEqual(result, _service.GetSetPower(game.Sets));
+        }
+        #endregion
     }
 }

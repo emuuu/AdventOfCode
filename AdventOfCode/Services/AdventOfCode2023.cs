@@ -1,4 +1,6 @@
 ﻿using AdventOfCode.Extensions;
+using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -91,17 +93,17 @@ namespace AdventOfCode.Services
                 {"nine", 9 },
             };
 
-            for(var i = 0; i < input.Length;  i++)
+            for (var i = 0; i < input.Length; i++)
             {
-                if(int.TryParse(input[i].ToString(), out int val))
+                if (int.TryParse(input[i].ToString(), out int val))
                 {
                     digits.Add(val);
                 }
                 else if (includeWrittenDigits)
                 {
-                    foreach(var digitMapping in digitMap.Where(x => x.Key.StartsWith(input[i])))
+                    foreach (var digitMapping in digitMap.Where(x => x.Key.StartsWith(input[i])))
                     {
-                        if(input.Length >= i + digitMapping.Key.Length && input.Substring(i, digitMapping.Key.Length) == digitMapping.Key)
+                        if (input.Length >= i + digitMapping.Key.Length && input.Substring(i, digitMapping.Key.Length) == digitMapping.Key)
                         {
                             digits.Add(digitMapping.Value);
                         }
@@ -112,7 +114,90 @@ namespace AdventOfCode.Services
 
             return 10 * digits.First() + digits.Last();
         }
+        #endregion
 
+        #region Day 02
+        public int Day2_PuzzleOne(List<(int GameID, List<Dictionary<string, int>> Sets)> input)
+        {
+            var possibilityCondition = "12 red, 13 green, 14 blue";
+            return input.Where(x => GameIsPossible(possibilityCondition, x.Sets)).Sum(x => x.GameID);
+        }
+
+        public int Day2_PuzzleTwo(List<(int GameID, List<Dictionary<string, int>> Sets)> input)
+        {
+            return input.Sum(x => GetSetPower(x.Sets));
+        }
+
+        public List<(int GameID, List<Dictionary<string, int>> Sets)> ConvertDay2Input(string inputPath)
+        {
+            var input = new List<(int GameID, List<Dictionary<string, int>> Sets)>();
+            foreach (var line in File.ReadAllLines(inputPath))
+            {
+                input.Add(ConvertDescriptionToGame(line));
+            }
+            return input;
+        }
+
+        public (int GameID, List<Dictionary<string, int>> Sets) ConvertDescriptionToGame(string gameDescription)
+        {
+            var sets = new List<Dictionary<string, int>>();
+            var gameID = int.Parse(gameDescription.Split(": ")[0].Replace("Game ", ""));
+            foreach (var set in gameDescription.Split(": ")[1].Split("; "))
+            {
+                sets.Add(set.Split(", ").ToDictionary(
+                    x => x.Split(' ')[1],
+                    x => int.Parse(x.Split(' ')[0])));
+
+            }
+            return (gameID, sets);
+        }
+
+        public Dictionary<string, int> GetMaxNumberOfColor(List<Dictionary<string, int>> sets)
+        {
+            var result = new Dictionary<string, int>();
+            foreach (var set in sets)
+            {
+                foreach (var color in set)
+                {
+                    if (result.TryGetValue(color.Key, out int currentMaxValue))
+                    {
+                        if (color.Value > currentMaxValue)
+                        {
+                            result[color.Key] = color.Value;
+                        }
+                    }
+                    else
+                    {
+                        result[color.Key] = color.Value;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public bool GameIsPossible(string possibilityConditions, List<Dictionary<string, int>> game)
+        {
+            var conditions = possibilityConditions.Split(", ").ToDictionary(
+                x => x.Split(" ")[1],
+            x => int.Parse(x.Split(" ")[0]));
+
+            var gameMaxValues = GetMaxNumberOfColor(game);
+            foreach (var condition in conditions)
+            {
+                if (gameMaxValues.TryGetValue(condition.Key, out int maxNumber))
+                {
+                    if (maxNumber > condition.Value)
+                        return false;
+                }
+            }
+            return true;
+        }
+        
+        public int GetSetPower(List<Dictionary<string, int>> sets)
+        {
+            var maxValues = GetMaxNumberOfColor(sets);
+            return maxValues.Select(x => x.Value).Aggregate((a, b) => a * b);
+        }
         #endregion
     }
 }
