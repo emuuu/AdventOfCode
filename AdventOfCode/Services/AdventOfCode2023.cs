@@ -1,6 +1,8 @@
 ﻿using AdventOfCode.Extensions;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 
 namespace AdventOfCode.Services
 {
@@ -56,6 +58,62 @@ namespace AdventOfCode.Services
             return result;
         }
 
+        #region Day 01 
+        public List<string> ConvertDay1Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
+
+        public int Day1_PuzzleOne(List<string> input)
+        {
+            return input.Sum(x => ExtractDigits(x, false));
+        }
+
+        public int Day1_PuzzleTwo(List<string> input)
+        {
+            return input.Sum(x => ExtractDigits(x, true));
+        }
+
+        public int ExtractDigits(string input, bool includeWrittenDigits)
+        {
+            var digits = new List<int>();
+
+            var digitMap = new Dictionary<string, int>()
+            {
+                {"one", 1 },
+                {"two", 2 },
+                {"three", 3 },
+                {"four", 4 },
+                {"five", 5 },
+                {"six", 6 },
+                {"seven", 7 },
+                {"eight", 8 },
+                {"nine", 9 },
+            };
+
+            for(var i = 0; i < input.Length;  i++)
+            {
+                if(int.TryParse(input[i].ToString(), out int val))
+                {
+                    digits.Add(val);
+                }
+                else if (includeWrittenDigits)
+                {
+                    foreach(var digitMapping in digitMap.Where(x => x.Key.StartsWith(input[i])))
+                    {
+                        if(input.Length >= i + digitMapping.Key.Length && input.Substring(i, digitMapping.Key.Length) == digitMapping.Key)
+                        {
+                            digits.Add(digitMapping.Value);
+                        }
+
+                    }
+                }
+            }
+
+            return 10 * digits.First() + digits.Last();
+        }
+
+        #endregion
     }
 }
 
