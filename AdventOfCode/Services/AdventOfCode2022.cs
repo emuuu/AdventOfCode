@@ -724,6 +724,28 @@ namespace AdventOfCode.Services
             return input.Select(x => x.InspectedItems).OrderDescending().Take(2).Aggregate((a, b) => a * b);
         }
         #endregion
+
+        #region Day 12
+
+        public List<List<char>> ConvertDay12Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).Select(x => x.Select(y =>y).ToList()).ToList();
+        }
+
+        public long Day12_PuzzleOne(List<List<char>> input)
+        {
+            var map = input.SelectMany((a, y) => a.Select((b ,x)  => (H: b, X: x, Y: y))).ToList();
+            var startPosition = map.First(a => a.H == 'S');
+            var targetPosition = map.First(a => a.H == 'E');
+            var test = 'b' - 'a';
+            return default;
+        }
+
+        public long Day12_PuzzleTwo(List<List<char>> input)
+        {
+            return default;
+        }
+        #endregion
     }
 }
 
