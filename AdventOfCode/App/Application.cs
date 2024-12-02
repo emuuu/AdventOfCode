@@ -12,6 +12,7 @@ namespace AdventOfCode.App
 {
     public class Application
     {
+        public readonly AdventOfCode2024 _advent2024Service;
         public readonly AdventOfCode2023 _advent2023Service;
         public readonly AdventOfCode2022 _advent2022Service;
         public readonly AdventOfCode2021 _advent2021Service;
@@ -25,6 +26,7 @@ namespace AdventOfCode.App
         private int _year;
 
         public Application(
+            AdventOfCode2024 advent2024Service,
             AdventOfCode2023 advent2023Service,
             AdventOfCode2022 advent2022Service,
             AdventOfCode2021 advent2021Service,
@@ -32,6 +34,7 @@ namespace AdventOfCode.App
             AdventOfCode2019 advent2019Service,
             IOptions<Settings> settings)
         {
+            _advent2024Service = advent2024Service;
             _advent2023Service = advent2023Service;
             _advent2022Service = advent2022Service;
             _advent2021Service = advent2021Service;
