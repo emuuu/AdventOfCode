@@ -192,12 +192,85 @@ namespace AdventOfCode.Services
             }
             return true;
         }
-        
+
         public int GetSetPower(List<Dictionary<string, int>> sets)
         {
             var maxValues = GetMaxNumberOfColor(sets);
             return maxValues.Select(x => x.Value).Aggregate((a, b) => a * b);
         }
+        #endregion
+
+        #region Day 03
+        public List<string> ConvertDay3Input(string inputPath)
+        {
+            return File.ReadAllLines(inputPath).ToList();
+        }
+
+        public int Day3_PuzzleOne(List<string> input)
+        {
+            var symbols = ParseSymbols(input);
+            var numbers = ParseEngineParts(input);
+            var result = 0;
+            foreach(var symbol in symbols)
+            {
+                var top = symbol.Row - 1;
+                var bot = symbol.Row + 1;
+                var left = symbol.Column - 1;
+                var right = symbol.Column + 1;
+
+                foreach (var adjacentNumber in numbers.Where(x => x.Row >= symbol.Row - 1 && x.Row <= symbol.Row + 1 && (x.StartColumn >= symbol.Column - 1 && x.EndColum <= symbol.Row + 1)))
+                {
+                    result += adjacentNumber.Value;
+                }
+                numbers = numbers.Where(x => !(x.Row >= symbol.Row - 1 && x.Row <= symbol.Row + 1 && x.StartColumn >= symbol.Column - 1 && x.EndColum <= symbol.Row + 1)).ToList();
+            }
+            return result;
+        }
+
+        public int Day3_PuzzleTwo(List<string> input)
+        {
+            return default;
+        }
+
+        public List<(int Row, int Column)> ParseSymbols(List<string> input)
+        {
+            var result = new List<(int Row, int Column)>();
+            for (var y = 0; y < input.Count; y++)
+            {
+                for (var x = 0; x < input[y].Length; x++)
+                {
+                    if (!char.IsDigit(input[y][x]) && input[y][x] != '.')
+                    {
+                        result.Add((y, x));
+                    }
+                }
+            }
+            return result;
+        }
+
+        public List<(int Value, int Row, int StartColumn, int EndColum)> ParseEngineParts(List<string> input)
+        {
+            var result = new List<(int Value, int Row, int StartColumn, int EndColum)>();
+            var currentNumber = new List<(int Value, int Column)>();
+            for (var y = 0; y < input.Count; y++)
+            {
+                for (var x = 0; x < input[y].Length; x++)
+                {
+                    if (char.IsDigit(input[y][x]))
+                    {
+                        currentNumber.Add((int.Parse(input[y][x].ToString()), x));
+                    }
+                    if (currentNumber.Any() && (!char.IsDigit(input[y][x]) || x == input[y].Length - 1))
+                    {
+                        result.Add(((int)currentNumber.Select((x, i) => x.Value * Math.Pow(10, currentNumber.Count - i - 1)).Sum(), y, currentNumber.First().Column, currentNumber.Last().Column));
+                        currentNumber.Clear();
+                    }
+                }
+            }
+
+            return result;
+        }
+
         #endregion
     }
 }

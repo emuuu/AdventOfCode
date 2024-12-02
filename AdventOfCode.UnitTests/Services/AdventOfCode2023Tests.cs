@@ -70,5 +70,16 @@ namespace AdventOfCode.Services.UnitTests
             Assert.AreEqual(result, _service.GetSetPower(game.Sets));
         }
         #endregion
+
+        #region Day 03
+        [Test]
+        [TestCase("467..114..\r\n...*......\r\n..35..633.\r\n......#...\r\n617*......\r\n.....+.58.\r\n..592.....\r\n......755.\r\n...$.*....\r\n.664.598..", true)]
+        public void Day03_ExtractDigits(string input, bool result)
+        {
+            var lines = input.Split("\r\n").ToList();
+            var test = _service.ParseEngineParts(lines);
+            Assert.AreEqual(result, true);
+        }
+        #endregion
     }
 }
