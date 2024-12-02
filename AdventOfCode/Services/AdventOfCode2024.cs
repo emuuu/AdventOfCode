@@ -59,6 +59,34 @@ namespace AdventOfCode.Services
             }
             return result;
         }
+
+        #region Day 01 
+        public List<int[]> ConvertDay1Input(string inputPath)
+        {
+            List<int[]> result = new List<int[]>();
+            result.Add(File.ReadAllLines(inputPath).Select(x => int.Parse(x.Split("   ")[0])).ToArray());
+            result.Add(File.ReadAllLines(inputPath).Select(x => int.Parse(x.Split("   ")[1])).ToArray());
+            return result;
+        }
+
+        public int Day1_PuzzleOne(List<int[]> input)
+        {
+            input[0] = input[0].OrderBy(x => x).ToArray();
+            input[1] = input[1].OrderBy(x => x).ToArray();
+
+            return (int)Enumerable.Range(0, input[0].Length).Sum(x => Math.Abs(input[0][x] - input[1][x]));
+        }
+
+        public int Day1_PuzzleTwo(List<int[]> input)
+        {
+            input[0] = input[0].OrderBy(x => x).ToArray();
+            input[1] = input[1].OrderBy(x => x).ToArray();
+
+            return (int)Enumerable.Range(0, input[0].Length).Sum(x => input[0][x] * input[1].Count(y => y == input[0][x]));
+        }
+
+
+        #endregion
     }
 }
 
