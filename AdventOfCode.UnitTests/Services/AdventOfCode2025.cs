@@ -8,14 +8,14 @@ using System.Text.RegularExpressions;
 namespace AdventOfCode.Services.UnitTests
 {
     [TestFixture]
-    public class AdventOfCode2023Tests
+    public class AdventOfCode2025Tests
     {
         private AdventOfCode2023 _service;
 
         [SetUp]
         public void Setup()
         {
-            _service = new AdventOfCode2023();
+            _service = new AdventOfCode2025();
         }
     }
 }

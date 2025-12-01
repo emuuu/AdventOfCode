@@ -3,8 +3,11 @@ using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace AdventOfCode.Services
 {
@@ -29,7 +32,8 @@ namespace AdventOfCode.Services
             {
                 if (puzzle1Method != null)
                 {
-                    var input = inputMethod.Invoke(this, new object[] { inputPath });
+                    var inputResult = inputMethod.Invoke(this, new object[] { inputPath });
+                    var input = GetResultFromPossibleTask(inputResult);
                     watch.Start();
                     var puzzleResult = puzzle1Method.Invoke(this, new object[] { input });
                     watch.Stop();
@@ -42,7 +46,8 @@ namespace AdventOfCode.Services
                 }
                 if (puzzle2Method != null)
                 {
-                    var input = inputMethod.Invoke(this, new object[] { inputPath });
+                    var inputResult = inputMethod.Invoke(this, new object[] { inputPath });
+                    var input = GetResultFromPossibleTask(inputResult);
                     watch.Restart();
                     var puzzleResult = puzzle2Method.Invoke(this, new object[] { input });
                     watch.Stop();
@@ -60,20 +65,59 @@ namespace AdventOfCode.Services
             return result;
         }
 
+        private object GetResultFromPossibleTask(object result)
+        {
+            if (result is Task task)
+            {
+                task.Wait();
+                var resultProperty = task.GetType().GetProperty("Result");
+                return resultProperty?.GetValue(task);
+            }
+            return result;
+        }
+
         #region Day 01 
-        public List<int> ConvertDay1Input(string inputPath)
+        public async Task<List<int>> ConvertDay1Input(string inputPath)
         {
-            return default;
+            var commandList = await System.IO.File.ReadAllLinesAsync(inputPath);
+            var commands = commandList.Select(x => int.Parse(x.Trim('R').Trim('L')) * (x.StartsWith("R") ? 1 : -1));
+
+            return commands.ToList();
         }
 
-        public int Day1_PuzzleOne(List<int[]> input)
+        public int Day1_PuzzleOne(List<int> input)
         {
-            return default;
+            var value = 50;
+            var result = 0;
+            foreach (var command in input)
+            {
+                value += command;
+                while (value > 99) value -= 100;
+                while (value < 0) value += 100;
+                if (value == 0)
+                    result++;
+            }
+            return result;
         }
 
-        public int Day1_PuzzleTwo(List<int[]> input)
+        public int Day1_PuzzleTwo(List<int> input)
         {
-            return default;
+            var value = 50;
+            var result = 0;
+            foreach (var command in input)
+            {
+                var step = command > 0 ? 1 : -1;
+                for (var i = 0; i < Math.Abs(command); i++)
+                {
+                    value += step;
+                    if (value > 99) value -= 100;
+                    if (value < 0) value += 100;
+                    if (value == 0)
+                        result++;
+                }
+
+            }
+            return result;
         }
         #endregion
 
