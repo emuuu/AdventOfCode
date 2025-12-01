@@ -84,8 +84,65 @@ namespace AdventOfCode.Services
 
             return (int)Enumerable.Range(0, input[0].Length).Sum(x => input[0][x] * input[1].Count(y => y == input[0][x]));
         }
+        #endregion
 
+        #region Day 01 
+        public Dictionary<int, int[]> ConvertDay2Input(string inputPath)
+        {
+            var lines = File.ReadAllLines(inputPath);
+            return Enumerable.Range(0, lines.Length).ToDictionary(
+                x => x,
+                x => lines[x].Split(" ").Select(y => int.Parse(y)).ToArray());
+        }
 
+        public int Day2_PuzzleOne(Dictionary<int, int[]> input)
+        {
+            return input.Count(x=>ReportIsSafe(x.Value, false));
+        }
+
+        public int Day2_PuzzleTwo(Dictionary<int, int[]> input)
+        {
+            return input.Count(x => ReportIsSafe(x.Value, true));
+        }
+
+        bool ReportIsSafe(int[] report, bool useProblemDampener)
+        {
+            bool problemDampenerUsed =false;
+            var ascendingMode = report[1] - report[0] > 0;
+            if (Math.Abs(report[1] - report[0]) < 1 || Math.Abs(report[1] - report[0]) > 3)
+            {
+                if (useProblemDampener)
+                {
+                    problemDampenerUsed = true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            for (var i = 1; i < report.Length; i++)
+            {
+                var difference = report[i] - report[i - 1];
+                var absDifference = Math.Abs(difference);
+                if ((ascendingMode != difference > 0) || (absDifference < 1 || absDifference > 3))
+                {
+                    if (useProblemDampener)
+                    {
+                        if (problemDampenerUsed)
+                        {
+                            return false;
+                        }
+                        problemDampenerUsed = true;
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         #endregion
     }
 }
