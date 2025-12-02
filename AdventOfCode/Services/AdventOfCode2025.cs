@@ -122,19 +122,60 @@ namespace AdventOfCode.Services
         #endregion
 
         #region Day 02
-        public async Task<List<int>> ConvertDay2Input(string inputPath)
+        public async Task<List<string>> ConvertDay2Input(string inputPath)
         {
-            return default;
+            return (await System.IO.File.ReadAllTextAsync(inputPath)).Split(',').ToList();
         }
 
-        public int Day2_PuzzleOne(List<int> input)
+        public long Day2_PuzzleOne(List<string> input)
         {
-            return default;
+            long result = 0;
+            foreach(var range in input)
+            {
+                var parts = range.Split('-');
+                if (parts[0].StartsWith('0') || parts[1].StartsWith('0'))
+                    continue;
+
+                var first = long.Parse(parts[0]);
+                var second = long.Parse(parts[1]);
+                for(long i = first; i <= second; i++)
+                {
+                    var number = i.ToString().AsSpan();
+
+                    if (number.Length % 2 != 0)
+                        continue;
+
+                    var haelfte = number.Length / 2;
+                    if (number[..haelfte].SequenceEqual(number[haelfte..]))
+                    {
+                        result += i;
+                    }
+                }
+            }
+            return result;
         }
 
-        public int Day2_PuzzleTwo(List<int> input)
+        public long Day2_PuzzleTwo(List<string> input)
         {
-            return default;
+            long result = 0;
+            foreach (var range in input)
+            {
+                var parts = range.Split('-');
+                if (parts[0].StartsWith('0') || parts[1].StartsWith('0'))
+                    continue;
+
+                var first = long.Parse(parts[0]);
+                var second = long.Parse(parts[1]);
+                for (long i = first; i <= second; i++)
+                {
+                    var number = i.ToString();
+                    if ((number + number).AsSpan(1, number.Length * 2 - 2).Contains(number, StringComparison.Ordinal))
+                    {
+                        result += i;
+                    }
+                }
+            }
+            return result;
         }
         #endregion
 
