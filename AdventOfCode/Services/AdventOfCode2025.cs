@@ -180,19 +180,45 @@ namespace AdventOfCode.Services
         #endregion
 
         #region Day 03
-        public async Task<List<string>> ConvertDay3Input(string inputPath)
+        public async Task<List<List<int>>> ConvertDay3Input(string inputPath)
         {
-            return default;
+            return File.ReadAllLines(inputPath).Select(line => line.Select(digit => int.Parse(digit.ToString())).ToList()).ToList();
         }
 
-        public long Day3_PuzzleOne(List<string> input)
+        public long Day3_PuzzleOne(List<List<int>> input)
         {
-            return default;
+            var requiredBatteries = 2;
+            long result = 0;
+            foreach (var line in input)
+            {
+                result += GetMaxJoltage(line, requiredBatteries);
+            }
+            return result;
         }
 
-        public long Day3_PuzzleTwo(List<string> input)
+        public long Day3_PuzzleTwo(List<List<int>> input)
         {
-            return default;
+            var requiredBatteries = 12;
+            long result = 0;
+            foreach (var line in input)
+            {
+                result += GetMaxJoltage(line, requiredBatteries);
+            }
+            return result;
+        }
+
+        private long GetMaxJoltage(List<int> stack, int requiredBatteries)
+        {
+            var lastBatteryIndex = -1;
+            var selectedBatteryStack = new List<int>();
+            while (requiredBatteries-- > 0)
+            {
+                var availableStack = stack.Skip(lastBatteryIndex + 1).Take((stack.Count - (lastBatteryIndex + 1)) - requiredBatteries).ToList();
+                var maxValue = availableStack.Max();
+                lastBatteryIndex = stack.IndexOf(maxValue, lastBatteryIndex + 1);
+                selectedBatteryStack.Add(maxValue);
+            }
+            return long.Parse(string.Join("", selectedBatteryStack));
         }
         #endregion
 
