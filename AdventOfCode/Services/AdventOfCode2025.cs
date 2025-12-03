@@ -130,7 +130,7 @@ namespace AdventOfCode.Services
         public long Day2_PuzzleOne(List<string> input)
         {
             long result = 0;
-            foreach(var range in input)
+            foreach (var range in input)
             {
                 var parts = range.Split('-');
                 if (parts[0].StartsWith('0') || parts[1].StartsWith('0'))
@@ -138,7 +138,7 @@ namespace AdventOfCode.Services
 
                 var first = long.Parse(parts[0]);
                 var second = long.Parse(parts[1]);
-                for(long i = first; i <= second; i++)
+                for (long i = first; i <= second; i++)
                 {
                     var number = i.ToString().AsSpan();
 
@@ -176,6 +176,23 @@ namespace AdventOfCode.Services
                 }
             }
             return result;
+        }
+        #endregion
+
+        #region Day 03
+        public async Task<List<string>> ConvertDay3Input(string inputPath)
+        {
+            return default;
+        }
+
+        public long Day3_PuzzleOne(List<string> input)
+        {
+            return default;
+        }
+
+        public long Day3_PuzzleTwo(List<string> input)
+        {
+            return default;
         }
         #endregion
 
