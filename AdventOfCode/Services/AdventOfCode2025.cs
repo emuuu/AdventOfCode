@@ -222,6 +222,22 @@ namespace AdventOfCode.Services
         }
         #endregion
 
+        #region Day 04
+        public async Task<List<List<int>>> ConvertDay4Input(string inputPath)
+        {
+            return default;
+        }
+
+        public long Day4_PuzzleOne(List<List<int>> input)
+        {
+            return default;
+        }
+
+        public long Day4_PuzzleTwo(List<List<int>> input)
+        {
+            return default;
+        }
+        #endregion
     }
 }
 
