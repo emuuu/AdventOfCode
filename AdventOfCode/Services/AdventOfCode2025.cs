@@ -223,19 +223,114 @@ namespace AdventOfCode.Services
         #endregion
 
         #region Day 04
-        public async Task<List<List<int>>> ConvertDay4Input(string inputPath)
+        public async Task<bool[,]> ConvertDay4Input(string inputPath)
         {
-            return default;
+            var lines = File.ReadAllLines(inputPath);
+            int rows = lines.Length;
+            int cols = lines[0].Length;
+
+            bool[,] result = new bool[rows, cols];
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    result[i, j] = lines[i][j] == '@';
+                }
+            }
+            return result;
         }
 
-        public long Day4_PuzzleOne(List<List<int>> input)
+        private int[,] GetNeighboursMap(bool[,] map)
         {
-            return default;
+            var neighboursMap = new int[map.GetLength(0), map.GetLength(1)];
+            for (var x = 0; x < map.GetLength(0); x++)
+            {
+                for (var y = 0; y < map.GetLength(1); y++)
+                {
+                    if (!map[x, y])
+                        continue;
+
+                    for (var xRun = x - 1; xRun <= x + 1; xRun++)
+                    {
+                        for (var yRun = y - 1; yRun <= y + 1; yRun++)
+                        {
+                            if ((x == xRun && y == yRun) || xRun < 0 || yRun < 0 || xRun >= map.GetLength(0) || yRun >= map.GetLength(1))
+                                continue;
+                            if (map[xRun, yRun])
+                            {
+                                neighboursMap[x, y]++;
+                            }
+                        }
+                    }
+                }
+            }
+            return neighboursMap;
         }
 
-        public long Day4_PuzzleTwo(List<List<int>> input)
+        private bool[,] GetMovableRolls(int[,] neighboursMap, bool[,] map)
         {
-            return default;
+            var movableRolls = new bool[neighboursMap.GetLength(0), neighboursMap.GetLength(1)];
+            for (var x = 0; x < neighboursMap.GetLength(0); x++)
+            {
+                for (var y = 0; y < neighboursMap.GetLength(1); y++)
+                {
+                    movableRolls[x, y] = map[x, y] && neighboursMap[x, y] < 4;
+                }
+            }
+            return movableRolls;
+        }
+
+        private int CountMovableRolls(bool[,] movableRolls)
+        {
+            var count = 0;
+            for (var x = 0; x < movableRolls.GetLength(0); x++)
+            {
+                for (var y = 0; y < movableRolls.GetLength(1); y++)
+                {
+                    if (movableRolls[x, y])
+                    {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        private void UpdateMap(bool[,] map, bool[,] movableRolls)
+        {
+            for (var x = 0; x < movableRolls.GetLength(0); x++)
+            {
+                for (var y = 0; y < movableRolls.GetLength(1); y++)
+                {
+                    if (movableRolls[x, y])
+                        map[x, y] = false;
+                }
+            }
+        }
+
+        public long Day4_PuzzleOne(bool[,] map)
+        {
+            var neighboursMap = GetNeighboursMap(map);
+            var movableRolls = GetMovableRolls(neighboursMap, map);
+            return CountMovableRolls(movableRolls);
+        }
+
+        public long Day4_PuzzleTwo(bool[,] map)
+        {
+            var result = 0;
+            while (true)
+            {
+                var neighboursMap = GetNeighboursMap(map);
+                var movableRolls = GetMovableRolls(neighboursMap, map);
+                var movableCount = CountMovableRolls(movableRolls);
+                if (movableCount == 0)
+                    break;
+
+                result += movableCount;
+                UpdateMap(map, movableRolls);
+            }
+
+            return result;
         }
         #endregion
     }
