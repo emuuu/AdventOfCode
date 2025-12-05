@@ -335,19 +335,70 @@ namespace AdventOfCode.Services
         #endregion
 
         #region Day 05
-        public async Task<int> ConvertDay5Input(string inputPath)
+        public async Task<(List<(long From, long To)>, List<long>)> ConvertDay5Input(string inputPath)
         {
-            return default;
+            var lines = await File.ReadAllLinesAsync(inputPath);
+            var blankLineIndex = Array.IndexOf(lines, string.Empty);
+            var freshIngredients = new List<(long From, long To)>();
+            for (var i = 0; i < blankLineIndex; i++)
+            {
+                var parts = lines[i].Split('-');
+                freshIngredients.Add((long.Parse(parts[0]), long.Parse(parts[1])));
+            }
+
+            freshIngredients = freshIngredients
+                .OrderBy(p => p.From)
+                .ThenBy(p => p.To)
+                .ToList();
+
+            var availableIngredients = lines.Skip(blankLineIndex + 1).Select(x => long.Parse(x)).ToList();
+            return (freshIngredients, availableIngredients);
         }
 
-        public long Day5_PuzzleOne(int input)
+        public long Day5_PuzzleOne((List<(long From, long To)>, List<long>) input)
         {
-            return default;
+            var (freshIngredients, availableIngredients) = input;
+            var result = 0;
+            foreach (var availableIngredient in availableIngredients)
+            {
+                foreach(var freshIngredient in freshIngredients)
+                {
+                    if (availableIngredient >= freshIngredient.From && availableIngredient <= freshIngredient.To)
+                    {
+                        result++;
+                        break;
+                    }
+                }
+            }
+            return result;
         }
 
-        public long Day5_PuzzleTwo(int intput)
+        public long Day5_PuzzleTwo((List<(long From, long To)>, List<long>) input)
         {
-            return default;
+            var (freshIngredients, availableIngredients) = input;
+            var sorted = freshIngredients
+                .OrderBy(x => x.From)
+                .ThenBy(x => x.To)
+                .ToList();
+
+            var merged = new List<(long From, long To)>();
+
+            foreach (var range in sorted)
+            {
+                if (merged.Count == 0 || merged[^1].To < range.From - 1)
+                {
+                    merged.Add(range);
+                }
+                else
+                {
+                    var last = merged[^1];
+                    merged[^1] = (last.From, Math.Max(last.To, range.To));
+                }
+            }
+
+            long result = merged.Sum(r => r.To - r.From + 1);
+
+            return result;
         }
         #endregion
     }
