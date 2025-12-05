@@ -333,6 +333,23 @@ namespace AdventOfCode.Services
             return result;
         }
         #endregion
+
+        #region Day 05
+        public async Task<int> ConvertDay5Input(string inputPath)
+        {
+            return default;
+        }
+
+        public long Day5_PuzzleOne(int input)
+        {
+            return default;
+        }
+
+        public long Day5_PuzzleTwo(int intput)
+        {
+            return default;
+        }
+        #endregion
     }
 }
 
