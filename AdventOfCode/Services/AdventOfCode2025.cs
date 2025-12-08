@@ -2,12 +2,15 @@
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AdventOfCode.Services
 {
@@ -361,7 +364,7 @@ namespace AdventOfCode.Services
             var result = 0;
             foreach (var availableIngredient in availableIngredients)
             {
-                foreach(var freshIngredient in freshIngredients)
+                foreach (var freshIngredient in freshIngredients)
                 {
                     if (availableIngredient >= freshIngredient.From && availableIngredient <= freshIngredient.To)
                     {
@@ -399,6 +402,113 @@ namespace AdventOfCode.Services
             long result = merged.Sum(r => r.To - r.From + 1);
 
             return result;
+        }
+        #endregion
+
+        #region Day 06
+        public async Task<string[,]> ConvertDay6Input(string inputPath)
+        {
+            var lines = await File.ReadAllLinesAsync(inputPath);
+
+            var numberOfOperations = lines[^1].Count(x => x != ' ');
+            int[] widths = new int[numberOfOperations];
+            var searchIndex = -1;
+            foreach (var ch in lines[^1])
+            {
+                if (ch != ' ')
+                {
+                    searchIndex++;
+                }
+                else
+                {
+                    widths[searchIndex]++;
+                }
+            }
+            widths[searchIndex]++;
+
+            var worksheet = new string[lines.Length, numberOfOperations];
+
+                for (var y = 0; y < lines.Length; y++)
+                {
+                    for (var x = 0; x < numberOfOperations; x++)
+                    {
+                        try {
+                        worksheet[y, x] = lines[y].Substring(widths.Take(x).Sum()+x, widths[x]);
+                    }
+                    catch (Exception ex)
+                        {
+                            var olo = ex.Message;
+                        }
+                    }
+                }
+            
+
+            return worksheet;
+        }
+
+        public long Day6_PuzzleOne(string[,] input)
+        {
+            var grandTotal = 0L;
+            var xLenght = input.GetLength(1);
+            var yLenght = input.GetLength(0);
+            for (var x = 0; x < xLenght; x++)
+            {
+                long lineResult = input[yLenght - 1, x].Contains("*") ? 1 : 0;
+
+                for (var y = 0; y < yLenght - 1; y++)
+                {
+                    var number = long.Parse(input[y, x]);
+                    if (input[yLenght - 1, x].Contains("*"))
+                    {
+                        lineResult *= number;
+                    }
+                    else
+                    {
+                        lineResult += number;
+                    }
+                }
+
+                grandTotal += lineResult;
+            }
+            return grandTotal;
+        }
+
+        public long Day6_PuzzleTwo(string[,] input)
+        {
+            var grandTotal = 0L;
+            var xLenght = input.GetLength(1);
+            var yLenght = input.GetLength(0);
+            for (var x = 0; x < xLenght; x++)
+            {
+                long lineResult = input[yLenght - 1, x].Contains("*") ? 1 : 0;
+                var transformedNumbers = new List<string>();
+                var width = input[0, x].Length;
+
+                for (var x2 = width - 1; x2 >= 0; x2--)
+                {
+                    var subString = "";
+                    for (var y = 0; y < yLenght - 1; y++)
+                    {
+                        subString += input[y, x][x2];
+                    }
+                    transformedNumbers.Add(subString);
+                }
+
+                foreach (var transNumber in transformedNumbers)
+                {
+                    var number = long.Parse(transNumber);
+                    if (input[yLenght - 1, x].Contains("*"))
+                    {
+                        lineResult *= number;
+                    }
+                    else
+                    {
+                        lineResult += number;
+                    }
+                }
+                grandTotal += lineResult;
+            }
+            return grandTotal;
         }
         #endregion
     }
