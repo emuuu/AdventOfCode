@@ -428,20 +428,21 @@ namespace AdventOfCode.Services
 
             var worksheet = new string[lines.Length, numberOfOperations];
 
-                for (var y = 0; y < lines.Length; y++)
+            for (var y = 0; y < lines.Length; y++)
+            {
+                for (var x = 0; x < numberOfOperations; x++)
                 {
-                    for (var x = 0; x < numberOfOperations; x++)
+                    try
                     {
-                        try {
-                        worksheet[y, x] = lines[y].Substring(widths.Take(x).Sum()+x, widths[x]);
+                        worksheet[y, x] = lines[y].Substring(widths.Take(x).Sum() + x, widths[x]);
                     }
                     catch (Exception ex)
-                        {
-                            var olo = ex.Message;
-                        }
+                    {
+                        var olo = ex.Message;
                     }
                 }
-            
+            }
+
 
             return worksheet;
         }
@@ -509,6 +510,122 @@ namespace AdventOfCode.Services
                 grandTotal += lineResult;
             }
             return grandTotal;
+        }
+        #endregion
+
+        #region Day 07
+        public async Task<bool[,]> ConvertDay7Input(string inputPath)
+        {
+            var lines = await File.ReadAllLinesAsync(inputPath);
+            var size = lines.Length;
+            var width = lines[0].Length;
+
+            var grid = new bool[size, width];
+            for (var y = 0; y < size; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    grid[y, x] = lines[y][x] == '^' || lines[y][x] == 'S';
+                }
+            }
+
+            return grid;
+        }
+
+        private bool[,] BuildHitmap(bool[,] input)
+        {
+            var grid = new int[input.GetLength(0), input.GetLength(1)];
+            var hitMap = new bool[input.GetLength(0), input.GetLength(1)];
+            for (var y = 0; y < input.GetLength(0); y++)
+            {
+                for (var x = 0; x < input.GetLength(1); x++)
+                {
+                    if (input[y, x])
+                    {
+                        if (y == 0)
+                        {
+                            grid[y + 1, x] = 1;
+                            y++;
+                            break;
+                        }
+                        else
+                        {
+                            if (grid[y - 1, x] > 0)
+                            {
+                                hitMap[y, x] = true;
+                                grid[y, x + 1]++;
+                                grid[y, x - 1]++;
+                            }
+                        }
+                    }
+                    else if (y > 0 && grid[y - 1, x] > 0)
+                    {
+                        grid[y, x]++;
+                    }
+                }
+            }
+            return hitMap;
+        }
+
+        public long Day7_PuzzleOne(bool[,] input)
+        {
+            var result = 0L;
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var hitMap = BuildHitmap(input);
+            for (var y = 0; y < input.GetLength(0); y++)
+            {
+                for (var x = 0; x < input.GetLength(1); x++)
+                {
+                    if(hitMap[y, x])
+                    {
+                        result++;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public long Day7_PuzzleTwo(bool[,] input)
+        {
+            var height = input.GetLength(0);
+            var width = input.GetLength(1);
+            var timelines = new long[height, width];
+
+            for (var x = 0; x < width; x++)
+            {
+                if (input[0, x])
+                {
+                    timelines[0, x] = 1;
+                    break;
+                }
+            }
+
+            for (var y = 0; y < height - 1; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    if (timelines[y, x] == 0) continue;
+
+                    if (input[y + 1, x]) 
+                    {
+                        if (x > 0) timelines[y + 1, x - 1] += timelines[y, x];
+                        if (x < width - 1) timelines[y + 1, x + 1] += timelines[y, x];
+                    }
+                    else 
+                    {
+                        timelines[y + 1, x] += timelines[y, x];
+                    }
+                }
+            }
+
+            long result = 0;
+            for (var x = 0; x < width; x++)
+            {
+                result += timelines[height - 1, x];
+            }
+            return result;
         }
         #endregion
     }
